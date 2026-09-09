@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pythagoras Duel Arena - IFP Split Screen</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #090d16;
+            color: #f8fafc;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Interactive 3D Arcade Touch Buttons */
+        .ifp-btn {
+            min-height: 76px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            border-radius: 1.25rem;
+            transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 00px rgba(0,0,0,0.4), inset 0 2px 00px rgba(255,255,255,0.25);
+        }
+        .ifp-btn:active {
+            transform: translateY(4px) scale(0.97);
+            box-shadow: 0 2px 00px rgba(0,0,0,0.4);
+        }
+
+        /* Red Team Glow Button */
+        .btn-red {
+            background: linear-gradient(135deg, #be123c 0%, #e11d48 50%, #9f1239 100%);
+            border: 2px solid #fda4af;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: #ffffff;
+        }
+        .btn-red:hover {
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.6), inset 0 2px 00px rgba(255,255,255,0.3);
+        }
+
+        /* Blue Team Glow Button */
+        .btn-blue {
+            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #0369a1 100%);
+            border: 2px solid #7dd3fc;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: #ffffff;
+        }
+        .btn-blue:hover {
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.6), inset 0 2px 00px rgba(255,255,255,0.3);
+        }
+
+        /* Screen Shake Keyframes */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px) rotate(-1deg); }
+            40% { transform: translateX(8px) rotate(1deg); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+        .shake-anim {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Floating Score Text Animation */
+        @keyframes floatScore {
+            0% { opacity: 1; transform: translateY(0) scale(0.8); }
+            50% { opacity: 1; transform: translateY(-35px) scale(1.3); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1); }
+        }
+        .floating-score {
+            position: absolute;
+            pointer-events: none;
+            font-weight: 900;
+            font-size: 2rem;
+            z-index: 50;
+            animation: floatScore 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+        }
+
+        /* Banner Scale Animation */
+        @keyframes popBanner {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .banner-anim {
+            animation: popBanner 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Pulsing Timer Animation */
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; transform: scaleY(1); }
+            50% { opacity: 0.5; transform: scaleY(1.3); }
+        }
+        .timer-warning {
+            animation: pulse-fast 0.5s infinite;
+            background: linear-gradient(90deg, #ef4444, #f97316) !important;
+        }
+
+        /* Screen Flash Animations */
+        .flash-correct {
+            box-shadow: inset 0 0 50px rgba(34, 197, 94, 0.4) !important;
+            border-color: #22c55e !important;
+        }
+        .flash-wrong {
+            box-shadow: inset 0 0 50px rgba(239, 68, 68, 0.4) !important;
+            border-color: #ef4444 !important;
+        }
+        
+        /* Responsive Split Divider line */
+        .split-divider {
+            position: absolute;
+            top: 60px;
+            bottom: 0;
+            left: 50%;
+            width: 6px;
+            background: linear-gradient(to bottom, #38bdf8, #a855f7, #f43f5e);
+            transform: translateX(-50%);
+            z-index: 20;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 45;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- TOP TOOLBAR / HEADER -->
+    <header class="h-[60px] bg-slate-950 border-b border-slate-800 flex items-center justify-between px-6 z-30 flex-shrink-0 shadow-lg">
+        <div class="flex items-center gap-3">
+            <span class="bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow">Matematika Kelas 8</span>
+            <h1 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-rose-400 hidden sm:block">
+                ⚡ PYTHAGORAS DUEL ARENA ⚡
+            </h1>
+        </div>
+        
+        <!-- Center Game Progress Info -->
+        <div id="game-progress" class="flex items-center gap-4 bg-slate-900/90 px-5 py-1.5 rounded-full border border-slate-700 shadow-inner">
+            <span class="text-xs font-bold text-slate-400 uppercase">Ronde</span>
+            <span id="round-display" class="text-xl font-black text-amber-400 tracking-wider">1 / 5</span>
+            <div class="h-4 w-[2px] bg-slate-700"></div>
+            <span id="diff-badge" class="text-xs font-extrabold px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 uppercase border border-emerald-500/40">MUDAH</span>
+        </div>
+
+        <!-- Global Action Controls -->
+        <div class="flex items-center gap-2">
+            <button id="sound-btn" onclick="toggleSound()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 text-xs font-bold transition shadow">
+                🔊 Audio: On
+            </button>
+            <button onclick="resetGame()" class="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-800 text-rose-300 rounded-xl text-xs font-bold transition shadow">
+                🔄 Reset Duel
+            </button>
+        </div>
+    </header>
+
+    <!-- ROUND INTRO OVERLAY BANNER -->
+    <div id="round-banner-overlay" class="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center hidden pointer-events-none">
+        <div id="round-banner-card" class="bg-slate-900 border-2 border-amber-400/80 px-10 py-6 rounded-3xl shadow-[0_0_50px_rgba(251,191,36,0.3)] text-center banner-anim">
+            <span id="banner-subtitle" class="text-sm font-extrabold text-amber-400 uppercase tracking-widest block mb-1">SIAP-SIAP DUEL!</span>
+            <h2 id="banner-title" class="text-4xl font-black text-white tracking-tight">RONDE 1</h2>
+            <p id="banner-desc" class="text-xs text-slate-300 mt-2 font-semibold">Tingkat Kesulitan: <span class="text-emerald-400 font-extrabold">MUDAH</span></p>
+        </div>
+    </div>
+
+    <!-- MAIN SPLIT SCREEN AREA -->
+    <main class="flex-1 flex relative overflow-hidden">
+        
+        <!-- Middle Screen Divider -->
+        <div class="split-divider"></div>
+
+        <!-- ================= TIM KIRI (NAGA MERAH) ================= -->
+        <section id="panel-left" class="w-1/2 h-full flex flex-col justify-between p-4 bg-gradient-to-b from-rose-950/30 via-slate-950 to-slate-950 border-r border-rose-900/40 relative transition-all duration-300">
+            <!-- Team Left Header -->
+            <div class="flex justify-between items-center bg-rose-950/60 p-3 rounded-2xl border border-rose-800/80 shadow-lg relative overflow-hidden">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">🔥</div>
+                    <div>
+                        <span class="font-black text-rose-400 text-lg tracking-wide block leading-tight">TIM NAGA MERAH</span>
+                        <span id="streak-left" class="text-[11px] font-extrabold text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30 inline-block mt-0.5">🔥 STREAK 0</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-rose-300/80 block uppercase font-black">Total Skor</span>
+                    <span id="score-left" class="text-3xl font-black text-rose-400 tracking-wider">0</span>
+                </div>
+            </div>
+
+            <!-- Timer Bar Left -->
+            <div class="w-full bg-slate-900 h-3.5 rounded-full overflow-hidden my-2 border border-rose-950 p-0.5 shadow-inner">
+                <div id="timer-bar-left" class="bg-gradient-to-r from-rose-600 to-amber-500 h-full w-full rounded-full transition-all duration-100 ease-linear shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
+            </div>
+
+            <!-- Question Box Left -->
+            <div class="flex-1 flex flex-col justify-center items-center bg-slate-900/80 rounded-2xl p-4 border border-rose-900/40 my-1 relative shadow-xl backdrop-blur-sm">
+                <div id="question-text-left" class="text-center text-base md:text-lg font-bold mb-2 text-slate-100 min-h-[52px] flex items-center justify-center leading-snug px-2">
+                    Memuat Soal...
+                </div>
+                <!-- Dynamic Graphic Canvas -->
+                <canvas id="canvas-left" width="300" height="155" class="max-w-full rounded-xl bg-slate-950 border border-slate-800 shadow-inner mb-1"></canvas>
+            </div>
+
+            <!-- Answer Buttons Grid Left (Touch Friendly 80px) -->
+            <div id="options-left" class="grid grid-cols-2 gap-3 mb-2">
+                <!-- Javascript dynamic buttons -->
+            </div>
+
+            <!-- Team Left Status Overlay -->
+            <div id="status-left" class="text-center font-black text-sm h-6 text-rose-300/80 tracking-wide">
+                Sentuh jawabanmu secepatnya!
+            </div>
+        </section>
+
+        <!-- ================= TIM KANAN (ELANG BIRU) ================= -->
+        <section id="panel-right" class="w-1/2 h-full flex flex-col justify-between p-4 bg-gradient-to-b from-sky-950/30 via-slate-950 to-slate-950 border-l border-sky-900/40 relative transition-all duration-300">
+            <!-- Team Right Header -->
+            <div class="flex justify-between items-center bg-sky-950/60 p-3 rounded-2xl border border-sky-800/80 shadow-lg relative overflow-hidden">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">⚡</div>
+                    <div>
+                        <span class="font-black text-sky-400 text-lg tracking-wide block leading-tight">TIM ELANG BIRU</span>
+                        <span id="streak-right" class="text-[11px] font-extrabold text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30 inline-block mt-0.5">⚡ STREAK 0</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-sky-300/80 block uppercase font-black">Total Skor</span>
+                    <span id="score-right" class="text-3xl font-black text-sky-400 tracking-wider">0</span>
+                </div>
+            </div>
+
+            <!-- Timer Bar Right -->
+            <div class="w-full bg-slate-900 h-3.5 rounded-full overflow-hidden my-2 border border-sky-950 p-0.5 shadow-inner">
+                <div id="timer-bar-right" class="bg-gradient-to-r from-sky-500 to-emerald-400 h-full w-full rounded-full transition-all duration-100 ease-linear shadow-[0_0_10px_rgba(56,189,248,0.5)]"></div>
+            </div>
+
+            <!-- Question Box Right -->
+            <div class="flex-1 flex flex-col justify-center items-center bg-slate-900/80 rounded-2xl p-4 border border-sky-900/40 my-1 relative shadow-xl backdrop-blur-sm">
+                <div id="question-text-right" class="text-center text-base md:text-lg font-bold mb-2 text-slate-100 min-h-[52px] flex items-center justify-center leading-snug px-2">
+                    Memuat Soal...
+                </div>
+                <!-- Dynamic Graphic Canvas -->
+                <canvas id="canvas-right" width="300" height="155" class="max-w-full rounded-xl bg-slate-950 border border-slate-800 shadow-inner mb-1"></canvas>
+            </div>
+
+            <!-- Answer Buttons Grid Right (Touch Friendly 80px) -->
+            <div id="options-right" class="grid grid-cols-2 gap-3 mb-2">
+                <!-- Javascript dynamic buttons -->
+            </div>
+
+            <!-- Team Right Status Overlay -->
+            <div id="status-right" class="text-center font-black text-sm h-6 text-sky-300/80 tracking-wide">
+                Sentuh jawabanmu secepatnya!
+            </div>
+        </section>
+    </main>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- GAME OVER / VICTORY OVERLAY -->
+    <div id="victory-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg z-50 flex flex-col items-center justify-center hidden">
+        <div class="bg-slate-900/90 border-2 border-amber-400/80 p-8 rounded-3xl max-w-lg w-full text-center shadow-[0_0_60px_rgba(251,191,36,0.3)] relative mx-4">
+            <div class="text-6xl mb-2 animate-bounce">🏆</div>
+            <h2 id="winner-title" class="text-4xl font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-amber-500">
+                PERMAINAN SELESAI!
+            </h2>
+            <p id="winner-subtitle" class="text-slate-300 font-bold mb-6 text-sm">Hasil Akhir 5 Ronde Duel Pythagoras:</p>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Team Red Result -->
+                <div class="bg-gradient-to-b from-rose-950/80 to-slate-900 p-4 rounded-2xl border border-rose-800/80 shadow-lg">
+                    <span class="block text-xs text-rose-300 font-black uppercase tracking-wider mb-1">🔥 Tim Naga Merah</span>
+                    <span id="final-score-left" class="text-4xl font-black text-rose-400">0</span>
+                    <span class="text-[10px] text-slate-400 block mt-1 uppercase font-bold">Total Poin</span>
+                </div>
+                <!-- Team Blue Result -->
+                <div class="bg-gradient-to-b from-sky-950/80 to-slate-900 p-4 rounded-2xl border border-sky-800/80 shadow-lg">
+                    <span class="block text-xs text-sky-300 font-black uppercase tracking-wider mb-1">⚡ Tim Elang Biru</span>
+                    <span id="final-score-right" class="text-4xl font-black text-sky-400">0</span>
+                    <span class="text-[10px] text-slate-400 block mt-1 uppercase font-bold">Total Poin</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-950/80 p-4 rounded-2xl mb-6 text-left border border-slate-800 shadow-inner">
+                <h4 class="font-extrabold text-amber-400 text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    💡 Konsep Kunci Teorema Pythagoras:
+                </h4>
+                <p class="text-xs text-slate-300 leading-relaxed font-medium">
+                    Pada setiap segitiga siku-siku, kuadrat sisi miring (hipotenusa) selalu sama dengan jumlah kuadrat dari kedua sisi tegaknya:
+                    <span class="block text-center text-amber-300 font-black text-sm my-1 bg-amber-500/10 py-1 rounded-lg border border-amber-500/20">
+                        a² + b² = c²  👉  c = √(a² + b²)
+                    </span>
+                </p>
+            </div>
+
+            <button onclick="resetGame()" class="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xl rounded-2xl shadow-[0_6px_20px_rgba(16,185,129,0.4)] transition active:scale-95 border border-emerald-300 tracking-wide">
+                🎮 MAIN LAGI (SOAL ACAK)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let streakLeft = 0;
+        let streakRight = 0;
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+        }
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.25); // C6
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'combo') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                    osc.frequency.exponentialRampToValueAtTime(1318.51, audioCtx.currentTime + 0.35); // E6
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+                    osc.frequency.setValueAtTime(130.81, audioCtx.currentTime + 0.15); // C3
+                    gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.35);
+                } else if (type === 'win') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.5);
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.6);
+                }
+            } catch (e) {
+                console.log("Audio playback error:", e);
+            }
+        }
+
+        function toggleSound() {
+            audioEnabled = !audioEnabled;
+            document.getElementById('sound-btn').innerText = audioEnabled ? "🔊 Audio: On" : "🔇 Audio: Off";
+        }
+
+        const QUESTION_POOL = {
+            MUDAH: [
+                {
+                    question: "Hitung panjang sisi miring (c) jika a = 3 cm dan b = 4 cm!",
+                    a: 3, b: 4, c: "?",
+                    options: ["5 cm", "6 cm", "7 cm", "8 cm"],
+                    answer: 0
+                },
+                {
+                    question: "Berapakah hipotenusa (c) jika alas a = 6 cm dan tinggi b = 8 cm?",
+                    a: 6, b: 8, c: "?",
+                    options: ["9 cm", "10 cm", "12 cm", "14 cm"],
+                    answer: 1
+                },
+                {
+                    question: "Segitiga siku-siku alas 5 cm & tinggi 12 cm. Sisi miringnya adalah...",
+                    a: 5, b: 12, c: "?",
+                    options: ["13 cm", "15 cm", "17 cm", "14 cm"],
+                    answer: 0
+                },
+                {
+                    question: "Jika alas a = 9 cm dan tinggi b = 12 cm, berapa sisi miring (c)?",
+                    a: 9, b: 12, c: "?",
+                    options: ["14 cm", "15 cm", "18 cm", "20 cm"],
+                    answer: 1
+                },
+                {
+                    question: "Hitung hipotenusa (c) jika alas a = 8 cm dan tinggi b = 15 cm!",
+                    a: 8, b: 15, c: "?",
+                    options: ["16 cm", "17 cm", "19 cm", "21 cm"],
+                    answer: 1
+                },
+                {
+                    question: "Berapakah sisi miring (c) jika alas a = 7 cm dan tinggi b = 24 cm?",
+                    a: 7, b: 24, c: "?",
+                    options: ["25 cm", "26 cm", "28 cm", "30 cm"],
+                    answer: 0
+                }
+            ],
+            SEDANG: [
+                {
+                    question: "Sisi miring c = 10 cm dan alas a = 6 cm. Hitung tinggi (b)!",
+                    a: 6, b: "?", c: 10,
+                    options: ["7 cm", "8 cm", "9 cm", "5 cm"],
+                    answer: 1
+                },
+                {
+                    question: "Manakah di bawah ini yang merupakan TRIPEL PYTHAGORAS?",
+                    a: null, b: null, c: null,
+                    options: ["3, 4, 6", "7, 24, 25", "5, 10, 12", "6, 8, 11"],
+                    answer: 1
+                },
+                {
+                    question: "Panjang hipotenusa c = 15 cm dan tinggi b = 12 cm. Berapakah alas (a)?",
+                    a: "?", b: 12, c: 15,
+                    options: ["8 cm", "9 cm", "10 cm", "11 cm"],
+                    answer: 1
+                },
+                {
+                    question: "Sisi miring c = 26 cm dan tinggi b = 24 cm. Berapakah alas (a)?",
+                    a: "?", b: 24, c: 26,
+                    options: ["10 cm", "12 cm", "14 cm", "16 cm"],
+                    answer: 0
+                },
+                {
+                    question: "Sisi miring c = 20 cm dan alas a = 12 cm. Berapakah tinggi (b)?",
+                    a: 12, b: "?", c: 20,
+                    options: ["14 cm", "15 cm", "16 cm", "18 cm"],
+                    answer: 2
+                },
+                {
+                    question: "Manakah pasangan angka yang TIDAK membentuk segitiga siku-siku?",
+                    a: null, b: null, c: null,
+                    options: ["6, 8, 10", "5, 12, 13", "8, 15, 17", "4, 5, 7"],
+                    answer: 3
+                }
+            ],
+            SULIT: [
+                {
+                    question: "Tangga sepanjang 5m bersandar di tembok. Jarak kaki tangga ke tembok 3m. Berapa tinggi tembok?",
+                    a: 3, b: "?", c: 5,
+                    options: ["3,5 m", "4,0 m", "4,5 m", "2,5 m"],
+                    answer: 1
+                },
+                {
+                    question: "Jika Luas Persegi Sisi A = 9 cm² dan Luas Sisi B = 16 cm², berapakah Luas Persegi Hipotenusa (C)?",
+                    a: "√9", b: "√16", c: "?",
+                    options: ["20 cm²", "25 cm²", "36 cm²", "49 cm²"],
+                    answer: 1
+                },
+                {
+                    question: "Kapal berlayar 12 km ke Barat lalu 9 km ke Utara. Berapa jarak terdekat kapal dari titik awal?",
+                    a: 12, b: 9, c: "?",
+                    options: ["15 km", "18 km", "21 km", "13 km"],
+                    answer: 0
+                },
+                {
+                    question: "Seseorang berjalan 16 m ke Timur lalu 12 m ke Selatan. Berapa jarak langsung ke titik asal?",
+                    a: 16, b: 12, c: "?",
+                    options: ["18 m", "20 m", "24 m", "28 m"],
+                    answer: 1
+                },
+                {
+                    question: "Sebuah tiang tinggi 12m diikat kawat ke tanah sejauh 5m dari kaki tiang. Berapa panjang kawat?",
+                    a: 5, b: 12, c: "?",
+                    options: ["13 m", "14 m", "15 m", "17 m"],
+                    answer: 0
+                }
+            ]
+        };
+
+        const ROUND_CONFIG = [
+            { difficulty: "MUDAH", timeLimit: 15, points: 100 },
+            { difficulty: "MUDAH", timeLimit: 15, points: 100 },
+            { difficulty: "SEDANG", timeLimit: 25, points: 200 },
+            { difficulty: "SEDANG", timeLimit: 25, points: 200 },
+            { difficulty: "SULIT", timeLimit: 35, points: 300 }
+        ];
+
+        let currentRound = 0;
+        let scoreLeft = 0;
+        let scoreRight = 0;
+        
+        let timerInterval = null;
+        let timeLeftLeft = 0;
+        let timeLeftRight = 0;
+        let maxTime = 15;
+
+        let leftAnswered = false;
+        let rightAnswered = false;
+
+        let activeQuestionLeft = null;
+        let activeQuestionRight = null;
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initGame() {
+            currentRound = 0;
+            scoreLeft = 0;
+            scoreRight = 0;
+            streakLeft = 0;
+            streakRight = 0;
+            updateScoreDisplay();
+            document.getElementById('victory-modal').classList.add('hidden');
+            stopConfetti();
+            loadRound(0);
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('score-left').innerText = scoreLeft;
+            document.getElementById('score-right').innerText = scoreRight;
+            document.getElementById('streak-left').innerText = `🔥 STREAK ${streakLeft}`;
+            document.getElementById('streak-right').innerText = `⚡ STREAK ${streakRight}`;
+        }
+
+        function showRoundBanner(roundIdx, config, callback) {
+            const overlay = document.getElementById('round-banner-overlay');
+            const card = document.getElementById('round-banner-card');
+            
+            document.getElementById('banner-title').innerText = `RONDE ${roundIdx + 1}`;
+            document.getElementById('banner-desc').innerHTML = `Tingkat Kesulitan: <strong class="text-amber-400">${config.difficulty}</strong> (${config.timeLimit}s)`;
+
+            overlay.classList.remove('hidden');
+            card.classList.remove('banner-anim');
+            void card.offsetWidth; // trigger reflow
+            card.classList.add('banner-anim');
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                if (callback) callback();
+            }, 1200);
+        }
+
+        function loadRound(roundIdx) {
+            if (roundIdx >= ROUND_CONFIG.length) {
+                endGame();
+                return;
+            }
+
+            currentRound = roundIdx;
+            const config = ROUND_CONFIG[roundIdx];
+
+            showRoundBanner(roundIdx, config, () => {
+                const pool = QUESTION_POOL[config.difficulty];
+
+                // Select 2 distinct random questions from the pool for left and right team
+                const shuffled = shuffleArray(pool);
+                activeQuestionLeft = shuffled[0];
+                activeQuestionRight = shuffled[1] || shuffled[0];
+
+                // Reset state
+                leftAnswered = false;
+                rightAnswered = false;
+                
+                // Update UI elements
+                document.getElementById('round-display').innerText = `${currentRound + 1} / ${ROUND_CONFIG.length}`;
+                
+                const diffBadge = document.getElementById('diff-badge');
+                diffBadge.innerText = config.difficulty;
+                if (config.difficulty === "MUDAH") {
+                    diffBadge.className = "text-xs font-black px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 uppercase border border-emerald-500/40";
+                } else if (config.difficulty === "SEDANG") {
+                    diffBadge.className = "text-xs font-black px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-400 uppercase border border-amber-500/40";
+                } else {
+                    diffBadge.className = "text-xs font-black px-3 py-0.5 rounded-full bg-rose-500/20 text-rose-400 uppercase border border-rose-500/40";
+                }
+
+                // Question Texts
+                document.getElementById('question-text-left').innerText = activeQuestionLeft.question;
+                document.getElementById('question-text-right').innerText = activeQuestionRight.question;
+
+                // Render Canvas triangles
+                drawTriangle('canvas-left', activeQuestionLeft, '#f43f5e');
+                drawTriangle('canvas-right', activeQuestionRight, '#38bdf8');
+
+                // Render Option Buttons
+                renderOptions('options-left', activeQuestionLeft.options, 'left');
+                renderOptions('options-right', activeQuestionRight.options, 'right');
+
+                // Reset Status Text
+                document.getElementById('status-left').innerText = "Sentuh jawabanmu secepatnya!";
+                document.getElementById('status-left').className = "text-center font-black text-sm h-6 text-rose-300/80 tracking-wide";
+                document.getElementById('status-right').innerText = "Sentuh jawabanmu secepatnya!";
+                document.getElementById('status-right').className = "text-center font-black text-sm h-6 text-sky-300/80 tracking-wide";
+
+                // Reset visual flashes
+                document.getElementById('panel-left').classList.remove('flash-correct', 'flash-wrong', 'shake-anim');
+                document.getElementById('panel-right').classList.remove('flash-correct', 'flash-wrong', 'shake-anim');
+
+                // Timers setup
+                maxTime = config.timeLimit;
+                timeLeftLeft = maxTime;
+                timeLeftRight = maxTime;
+                updateTimerBars();
+
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(handleTimerTick, 100);
+            });
+        }
+
+        function drawTriangle(canvasId, qData, accentColor) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Draw Cyber Grid Lines in background
+            ctx.strokeStyle = 'rgba(51, 65, 85, 0.25)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 20) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = 0; y < h; y += 20) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+
+            // Right-angled triangle geometry coordinates
+            const margin = 40;
+            const x1 = margin;             // Bottom Left (Right angle corner)
+            const y1 = h - margin;
+            const x2 = w - margin - 15;    // Bottom Right
+            const y2 = h - margin;
+            const x3 = margin;             // Top Left
+            const y3 = margin + 15;
+
+            // Draw Right Angle Symbol
+            const boxSize = 16;
+            ctx.fillStyle = 'rgba(241, 245, 249, 0.12)';
+            ctx.fillRect(x1, y1 - boxSize, boxSize, boxSize);
+            ctx.strokeStyle = 'rgba(241, 245, 249, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x1, y1 - boxSize, boxSize, boxSize);
+
+            // Draw Triangle Fill Gradient
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.lineTo(x3, y3);
+            ctx.closePath();
+
+            const grad = ctx.createLinearGradient(x1, y1, x2, y3);
+            grad.addColorStop(0, 'rgba(15, 23, 42, 0.85)');
+            grad.addColorStop(1, 'rgba(30, 41, 59, 0.65)');
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Glow Stroke Side Lines (a & b)
+            ctx.strokeStyle = accentColor;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = accentColor;
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.moveTo(x3, y3);
+            ctx.lineTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            // Glowing Hypotenuse Line (c) with Gold Highlight
+            ctx.strokeStyle = '#fbbf24';
+            ctx.shadowColor = '#fbbf24';
+            ctx.shadowBlur = 12;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x3, y3);
+            ctx.stroke();
+
+            // Reset Glow
+            ctx.shadowBlur = 0;
+
+            // Vertex Node Dots
+            [ [x1, y1], [x2, y2], [x3, y3] ].forEach(([vx, vy]) => {
+                ctx.beginPath();
+                ctx.arc(vx, vy, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#f8fafc';
+                ctx.fill();
+            });
+
+            // Text Labels for Sides (a, b, c)
+            ctx.font = 'bold 14px "Plus Jakarta Sans", sans-serif';
+            ctx.fillStyle = '#f8fafc';
+            ctx.textAlign = 'center';
+
+            // Base (a)
+            const labelA = qData.a !== null ? `a = ${qData.a}` : 'a';
+            ctx.fillText(labelA, (x1 + x2) / 2, y1 + 24);
+
+            // Height (b)
+            const labelB = qData.b !== null ? `b = ${qData.b}` : 'b';
+            ctx.textAlign = 'right';
+            ctx.fillText(labelB, x1 - 10, (y1 + y3) / 2 + 5);
+
+            // Hypotenuse (c)
+            const labelC = qData.c !== null ? `c = ${qData.c}` : 'c';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#fef08a'; // Bright Gold Text
+            ctx.fillText(labelC, (x2 + x3) / 2 + 18, (y2 + y3) / 2 - 8);
+        }
+
+        function renderOptions(containerId, options, team) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            const isLeft = team === 'left';
+            const btnClass = isLeft ? 'btn-red' : 'btn-blue';
+
+            options.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = `ifp-btn ${btnClass}`;
+                btn.innerText = optText;
+                
+                btn.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    handleAnswer(team, index, btn);
+                });
+
+                container.appendChild(btn);
+            });
+        }
+
+        function showFloatingScore(team, text, colorClass) {
+            const panel = document.getElementById(`panel-${team}`);
+            const floatEl = document.createElement('div');
+            floatEl.className = `floating-score ${colorClass}`;
+            floatEl.innerText = text;
+            floatEl.style.left = `${Math.random() * 40 + 30}%`;
+            floatEl.style.top = `45%`;
+            panel.appendChild(floatEl);
+
+            setTimeout(() => floatEl.remove(), 900);
+        }
+
+        function handleAnswer(team, selectedIdx, clickedBtn) {
+            const config = ROUND_CONFIG[currentRound];
+            const qData = team === 'left' ? activeQuestionLeft : activeQuestionRight;
+
+            if (team === 'left' && leftAnswered) return;
+            if (team === 'right' && rightAnswered) return;
+
+            const isCorrect = (selectedIdx === qData.answer);
+            const statusEl = document.getElementById(`status-${team}`);
+            const panelEl = document.getElementById(`panel-${team}`);
+
+            if (team === 'left') {
+                leftAnswered = true;
+                disableTeamButtons('left');
+                if (isCorrect) {
+                    streakLeft++;
+                    const speedBonus = Math.floor(timeLeftLeft * 6);
+                    const streakBonus = (streakLeft > 1) ? streakLeft * 30 : 0;
+                    const earned = config.points + speedBonus + streakBonus;
+                    scoreLeft += earned;
+                    
+                    playSound(streakLeft > 1 ? 'combo' : 'correct');
+                    showFloatingScore('left', `+${earned} XP!`, 'text-emerald-400');
+                    
+                    statusEl.innerText = `BENAR! +${earned} Poin`;
+                    statusEl.className = "text-center font-black text-sm h-6 text-emerald-400 tracking-wide";
+                    panelEl.classList.add('flash-correct');
+                } else {
+                    streakLeft = 0;
+                    playSound('wrong');
+                    panelEl.classList.add('shake-anim', 'flash-wrong');
+                    statusEl.innerText = `SALAH! (${qData.options[qData.answer]})`;
+                    statusEl.className = "text-center font-black text-sm h-6 text-rose-400 tracking-wide";
+                }
+            } else {
+                rightAnswered = true;
+                disableTeamButtons('right');
+                if (isCorrect) {
+                    streakRight++;
+                    const speedBonus = Math.floor(timeLeftRight * 6);
+                    const streakBonus = (streakRight > 1) ? streakRight * 30 : 0;
+                    const earned = config.points + speedBonus + streakBonus;
+                    scoreRight += earned;
+
+                    playSound(streakRight > 1 ? 'combo' : 'correct');
+                    showFloatingScore('right', `+${earned} XP!`, 'text-emerald-400');
+
+                    statusEl.innerText = `BENAR! +${earned} Poin`;
+                    statusEl.className = "text-center font-black text-sm h-6 text-emerald-400 tracking-wide";
+                    panelEl.classList.add('flash-correct');
+                } else {
+                    streakRight = 0;
+                    playSound('wrong');
+                    panelEl.classList.add('shake-anim', 'flash-wrong');
+                    statusEl.innerText = `SALAH! (${qData.options[qData.answer]})`;
+                    statusEl.className = "text-center font-black text-sm h-6 text-sky-400 tracking-wide";
+                }
+            }
+
+            updateScoreDisplay();
+
+            // Advance round after brief feedback display
+            if (leftAnswered && rightAnswered) {
+                clearInterval(timerInterval);
+                setTimeout(() => {
+                    loadRound(currentRound + 1);
+                }, 1600);
+            }
+        }
+
+        function disableTeamButtons(team) {
+            const container = document.getElementById(`options-${team}`);
+            const buttons = container.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.5';
+            });
+        }
+
+        function handleTimerTick() {
+            if (!leftAnswered) {
+                timeLeftLeft -= 0.1;
+                if (timeLeftLeft <= 0) {
+                    timeLeftLeft = 0;
+                    leftAnswered = true;
+                    disableTeamButtons('left');
+                    document.getElementById('status-left').innerText = "WAKTU HABIS!";
+                    document.getElementById('status-left').className = "text-center font-extrabold text-sm h-6 text-amber-400";
+                }
+            }
+
+            if (!rightAnswered) {
+                timeLeftRight -= 0.1;
+                if (timeLeftRight <= 0) {
+                    timeLeftRight = 0;
+                    rightAnswered = true;
+                    disableTeamButtons('right');
+                    document.getElementById('status-right').innerText = "WAKTU HABIS!";
+                    document.getElementById('status-right').className = "text-center font-extrabold text-sm h-6 text-amber-400";
+                }
+            }
+
+            updateTimerBars();
+
+            // Both timed out
+            if (leftAnswered && rightAnswered) {
+                clearInterval(timerInterval);
+                setTimeout(() => {
+                    loadRound(currentRound + 1);
+                }, 1500);
+            }
+        }
+
+        function updateTimerBars() {
+            const barLeft = document.getElementById('timer-bar-left');
+            const barRight = document.getElementById('timer-bar-right');
+
+            const pctLeft = Math.max(0, (timeLeftLeft / maxTime) * 100);
+            const pctRight = Math.max(0, (timeLeftRight / maxTime) * 100);
+
+            barLeft.style.width = `${pctLeft}%`;
+            barRight.style.width = `${pctRight}%`;
+
+            if (pctLeft < 30) barLeft.classList.add('timer-warning');
+            else barLeft.classList.remove('timer-warning');
+
+            if (pctRight < 30) barRight.classList.add('timer-warning');
+            else barRight.classList.remove('timer-warning');
+        }
+
+        let confettiAnimationId = null;
+        let confettiParticles = [];
+
+        function startConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const colors = ['#ef4444', '#38bdf8', '#fbbf24', '#34d399', '#a855f7', '#f472b6'];
+            confettiParticles = [];
+
+            for (let i = 0; i < 150; i++) {
+                confettiParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 4 - 2,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: Math.random() * 6 - 3
+                });
+            }
+
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                confettiParticles.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    p.rotation += p.rotationSpeed;
+
+                    if (p.y > canvas.height) {
+                        p.y = -10;
+                        p.x = Math.random() * canvas.width;
+                    }
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                });
+
+                confettiAnimationId = requestAnimationFrame(animateConfetti);
+            }
+
+            animateConfetti();
+        }
+
+        function stopConfetti() {
+            if (confettiAnimationId) {
+                cancelAnimationFrame(confettiAnimationId);
+                confettiAnimationId = null;
+            }
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function endGame() {
+            if (timerInterval) clearInterval(timerInterval);
+            playSound('win');
+
+            startConfetti();
+
+            // Display results in modal after brief confetti introduction delay
+            setTimeout(() => {
+                document.getElementById('final-score-left').innerText = scoreLeft;
+                document.getElementById('final-score-right').innerText = scoreRight;
+
+                const title = document.getElementById('winner-title');
+                if (scoreLeft > scoreRight) {
+                    title.innerText = "🏆 TIM MERAH MENANG!";
+                    title.className = "text-4xl font-black mb-2 text-rose-500";
+                } else if (scoreRight > scoreLeft) {
+                    title.innerText = "🏆 TIM BIRU MENANG!";
+                    title.className = "text-4xl font-black mb-2 text-sky-400";
+                } else {
+                    title.innerText = "🤝 HASIL SERI!";
+                    title.className = "text-4xl font-black mb-2 text-amber-400";
+                }
+
+                document.getElementById('victory-modal').classList.remove('hidden');
+            }, 600);
+        }
+
+        // Initialize game once window finishes loading
+        window.onload = function() {
+            initGame();
+        };
+    </script>
+</body>
+</html>
