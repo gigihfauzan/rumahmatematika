@@ -1,0 +1,942 @@
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Teorema Pythagoras IFP</title>
+  
+  <!-- Memuat TailwindCSS dan Icon (Tetap dipertahankan) -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --ink: #18324a;
+      --navy: #123354;
+      --cream: #fff9ed;
+      --paper: #fffdf8;
+      --orange: #ef7d33;
+      --yellow: #ffd65a;
+      --teal: #1a9a91;
+      --sky: #dcecf8;
+      --line: #dbe6e8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      width: 100%;
+      min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+      margin: 0;
+      color: var(--ink);
+      font-family: "DM Sans", sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    button:focus-visible, input:focus-visible, .moveable-square:focus-visible {
+      outline: 4px solid #195f9b;
+      outline-offset: 3px;
+    }
+
+    .app-shell {
+      position: relative;
+      width: 100%;
+      min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 7% 7%, rgba(255,214,90,.55) 0 7%, transparent 7.2%),
+        radial-gradient(circle at 94% 10%, rgba(26,154,145,.12) 0 13%, transparent 13.2%),
+        #fff9ed;
+    }
+
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .28;
+      background-image: radial-gradient(#bdcfce 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+
+    .content-layer { position: relative; z-index: 1; }
+    .title-font { font-family: "Fraunces", serif; }
+
+    .lesson-header {
+      color: #ffffff;
+      border-bottom: 6px solid #ef7d33;
+    }
+
+    .stage-tab {
+      min-height: 58px;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .stage-tab:hover { transform: translateY(-2px); }
+
+    .stage-tab.active {
+      color: #ffffff;
+      box-shadow: 0 7px 0 #bd5720;
+    }
+
+    .stage-panel { display: none; }
+    .stage-panel.active { display: block; animation: appear .34s ease both; }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .board-card {
+      background: #fffdf8;
+      border: 2px solid #dbe6e8;
+      box-shadow: 0 8px 0 rgba(24,50,74,.1);
+    }
+
+    .formula-box {
+      color: #ffffff;
+      background: #123354;
+      border: 4px solid #ffd65a;
+      box-shadow: 0 8px 0 #0b243a;
+    }
+
+    .hidden-view { display: none !important; }
+
+    .control-input {
+      width: 100%;
+      padding: .72rem .85rem;
+      font-weight: 800;
+      color: #18324a;
+      background: #ffffff;
+      border: 2px solid #dbe6e8;
+      border-radius: 12px;
+    }
+
+    .control-input:focus { border-color: #1a9a91; }
+
+    .workbench {
+      position: relative;
+      min-height: 500px;
+      overflow: hidden;
+      border: 2px dashed #b8cbcf;
+      border-radius: 22px;
+      background-color: #f8fcfb;
+      background-image:
+        linear-gradient(#dbe6e8 1px, transparent 1px),
+        linear-gradient(90deg, #dbe6e8 1px, transparent 1px);
+      background-size: 20px 20px;
+      touch-action: none;
+    }
+
+    .workbench-tip {
+      position: absolute;
+      z-index: 7;
+      top: 15px;
+      left: 17px;
+      max-width: 260px;
+      padding: .45rem .7rem;
+      font-size: .75rem;
+      font-weight: 800;
+      color: #456173;
+      pointer-events: none;
+      background: rgba(255,253,248,.9);
+      border: 1px solid #dbe6e8;
+      border-radius: 999px;
+    }
+
+    .triangle-guide {
+      position: absolute;
+      z-index: 1;
+      display: none;
+      pointer-events: none;
+      filter: drop-shadow(0 5px 5px rgba(18,51,84,.1));
+    }
+
+    .triangle-guide.visible { display: block; }
+
+    .triangle-guide polygon {
+      fill: rgba(255,214,90,.67);
+      stroke: #123354;
+      stroke-width: 4;
+      stroke-linejoin: round;
+    }
+
+    .triangle-guide path {
+      fill: none;
+      stroke: #ef7d33;
+      stroke-width: 4;
+    }
+
+    .moveable-square {
+      --unit: 18px;
+      position: absolute;
+      z-index: 4;
+      display: grid;
+      width: calc(var(--side) * var(--unit));
+      height: calc(var(--side) * var(--unit));
+      gap: 1px;
+      padding: 3px;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      background: rgba(255,255,255,.72);
+      border: 3px solid currentColor;
+      border-radius: 0;
+      box-shadow: 0 7px 13px rgba(24,50,74,.16);
+      transition: box-shadow .18s ease, filter .18s ease;
+    }
+
+    .moveable-square:hover { filter: brightness(1.02); }
+
+    .moveable-square.dragging {
+      z-index: 8;
+      cursor: grabbing;
+      box-shadow: 0 16px 22px rgba(24,50,74,.26);
+    }
+
+    .moveable-square:active { cursor: grabbing; }
+
+    .unit-cell {
+      min-width: 0;
+      min-height: 0;
+      pointer-events: none;
+      background: currentColor;
+      border-radius: 1px;
+      opacity: .72;
+    }
+
+    .square-a { color: #d96420; background-color: #fff0e5; }
+    .square-b { color: #148177; background-color: #e2f5f0; }
+    .square-c { color: #27668f; background-color: #e8f4fb; transform-origin: top left; }
+
+    .square-note {
+      position: absolute;
+      z-index: 9;
+      bottom: 14px;
+      left: 16px;
+      padding: .55rem .8rem;
+      font-size: .82rem;
+      font-weight: 800;
+      color: #18324a;
+      pointer-events: none;
+      background: rgba(255,253,248,.92);
+      border: 1px solid #dbe6e8;
+      border-radius: 12px;
+    }
+
+    .slider-track {
+      width: 100%;
+      cursor: pointer;
+      accent-color: #ef7d33;
+    }
+
+    .choice-button {
+      color: #18324a;
+      background: #ffffff;
+      border: 2px solid #dbe6e8;
+      transition: transform .16s ease, background .16s ease;
+    }
+
+    .choice-button:hover:not(:disabled) { transform: translateY(-2px); }
+    .choice-button:disabled { cursor: default; }
+
+    .correct-choice {
+      color: #12534e !important;
+      background: #d8f4e7 !important;
+      border-color: #1a9a91 !important;
+    }
+
+    .wrong-choice {
+      color: #842c22 !important;
+      background: #ffe3dd !important;
+      border-color: #df5c49 !important;
+    }
+
+    .step-line {
+      padding-left: 1rem;
+      border-left: 4px solid #ffd65a;
+    }
+
+    @media (max-width: 640px) {
+      .stage-tab { min-height: 54px; font-size: .72rem; }
+      .workbench { min-height: 430px; }
+      .moveable-square { --unit: 14px; }
+      .workbench-tip { max-width: 210px; font-size: .68rem; }
+    }
+  </style>
+</head>
+<body data-template-id="__page-root">
+  <div class="app-shell">
+   <div class="content-layer">
+    
+    <!-- HEADER -->
+    <header class="lesson-header px-5 py-6 sm:px-8 bg-[#18324a]">
+     <div class="mx-auto flex w-full max-w-7xl flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+       <div class="mb-2 flex flex-wrap gap-2">
+        <span class="inline-flex rounded-full px-3 py-1 text-sm font-bold bg-[#ef7d33] text-white">Matematika</span> 
+        <span class="inline-flex rounded-full px-3 py-1 text-sm font-bold bg-[#ffd65a] text-[#18324a]">SMP Kelas 8</span>
+       </div>
+       <h1 class="title-font max-w-3xl font-bold leading-tight text-4xl text-white">Media Teorema Pythagoras</h1>
+      </div>
+      <div class="max-w-xl rounded-2xl px-5 py-4 bg-[#123354] border border-[#dbe6e8]/20 text-white">
+       <div class="flex gap-3">
+        <i data-lucide="target" class="mt-1 h-6 w-6 shrink-0 text-[#ffd65a]"></i>
+        <p class="leading-relaxed">Siswa dapat memahami dan membuktikan rumus Teorema Pythagoras (a² + b² = c²) secara interaktif.</p>
+       </div>
+      </div>
+     </div>
+    </header>
+
+    <!-- NAVIGASI TAB -->
+    <nav aria-label="Tahap pembelajaran" class="mx-auto w-full max-w-7xl px-5 pt-6 sm:px-8">
+     <div class="grid grid-cols-2 gap-2 rounded-2xl bg-[#dbe6e8] p-2 sm:grid-cols-4 sm:gap-3">
+      <button class="stage-tab active rounded-xl px-2 py-3 font-bold bg-[#18324a]" type="button" data-stage="intro" aria-pressed="true">Pengenalan</button> 
+      <button class="stage-tab rounded-xl px-2 py-3 font-bold bg-white text-[#18324a]" type="button" data-stage="theory" aria-pressed="false">Teori</button> 
+      <button class="stage-tab rounded-xl px-2 py-3 font-bold bg-white text-[#18324a]" type="button" data-stage="explore" aria-pressed="false">Eksplorasi</button> 
+      <button class="stage-tab rounded-xl px-2 py-3 font-bold bg-white text-[#18324a]" type="button" data-stage="quiz" aria-pressed="false">Kuis</button>
+     </div>
+    </nav>
+
+    <!-- KONTEN UTAMA -->
+    <main class="mx-auto w-full max-w-7xl px-5 pb-10 pt-6 sm:px-8">
+     
+     <!-- TAHAP 1: PENGENALAN -->
+     <section id="intro-panel" class="stage-panel active" aria-labelledby="intro-heading">
+      <div class="mb-5">
+       <p class="mb-1 font-bold uppercase tracking-[.16em] text-[#ef7d33]">Tahap 1</p>
+       <h2 id="intro-heading" class="title-font font-bold text-3xl">Pembuktian dengan Persegi</h2>
+      </div>
+      <div class="grid gap-6 lg:grid-cols-[.77fr_1.23fr]">
+       <aside class="board-card rounded-3xl p-6 sm:p-7">
+        <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ffd65a] text-[#18324a]">
+         <i data-lucide="move" class="h-7 w-7"></i>
+        </div>
+        <h3 class="font-bold text-xl">Mari Eksperimen</h3>
+        <p class="mt-3 leading-relaxed text-[#456173]">Teorema Pythagoras menyatakan bahwa jumlah luas bujur sangkar pada kaki sebuah segitiga siku-siku sama dengan luas bujur sangkar di hipotenusanya.</p>
+        <div class="mt-7">
+         <h3 class="font-bold text-lg">Atur Panjang Sisi</h3>
+         <p class="mt-2 text-sm leading-relaxed text-[#456173]">Atur nilai sisi untuk mengubah ukuran persegi.</p>
+         <form id="intro-form" class="mt-5 grid grid-cols-3 gap-3">
+          <div>
+           <label class="mb-2 block text-sm font-bold text-[#d96420]" for="intro-a">Sisi a</label> 
+           <input id="intro-a" class="control-input" type="number" min="1" max="10" value="3">
+          </div>
+          <div>
+           <label class="mb-2 block text-sm font-bold text-[#148177]" for="intro-b">Sisi b</label> 
+           <input id="intro-b" class="control-input" type="number" min="1" max="10" value="4">
+          </div>
+          <div>
+           <label class="mb-2 block text-sm font-bold text-[#27668f]" for="intro-c">Sisi c</label> 
+           <input id="intro-c" class="control-input" type="number" min="1" max="14" value="5">
+          </div>
+         </form>
+        </div>
+        <div class="mt-6 rounded-2xl border-2 border-[#dbe6e8] bg-[#f8fcfb] p-4">
+         <div class="mb-2 flex items-center justify-between gap-3">
+          <label class="font-bold text-[#27668f]" for="square-c-rotation">Rotasi Persegi c</label> 
+          <output id="square-c-rotation-output" class="rounded-lg bg-[#e8f4fb] px-3 py-1 font-bold text-[#27668f]">0°</output>
+         </div><input id="square-c-rotation" class="slider-track" type="range" min="-180" max="180" value="0" step="1">
+        </div>
+        <div class="mt-6 grid gap-3">
+         <button id="check-triangle" class="bg-[#18324a] text-white min-h-[52px] rounded-xl px-4 py-3 font-bold hover:bg-[#123354] transition" type="button">Periksa Angka</button> 
+         <button id="arrange-triangle" class="bg-[#ffd65a] text-[#18324a] min-h-[52px] rounded-xl px-4 py-3 font-bold hover:bg-[#eec64f] transition" type="button">Susun Otomatis</button>
+        </div>
+        <p id="intro-feedback" class="mt-5 min-h-[48px] rounded-xl px-4 py-3 text-sm font-bold" aria-live="polite"></p>
+       </aside>
+       
+       <article class="board-card overflow-hidden rounded-3xl p-4 sm:p-6">
+        <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+         <div>
+          <h3 class="font-bold text-xl">Meja Kerja</h3>
+          <p class="mt-1 text-sm text-[#456173]">Bentuklah sebuah segitiga siku-siku dengan ketiga persegi.</p>
+         </div>
+         <span class="bg-[#dcecf8] text-[#18324a] w-fit rounded-full px-3 py-1 text-sm font-bold">Area Interaktif</span>
+        </div>
+        <div id="workbench" class="workbench" aria-label="Papan susun persegi satuan">
+         <p class="workbench-tip">💡 Tip: Klik dan geser persegi-persegi ini untuk menyusunnya!</p>
+         <svg id="triangle-guide" class="triangle-guide" aria-hidden="true">
+          <polygon id="triangle-polygon"></polygon> <path id="right-angle-mark"></path>
+         </svg>
+         <div id="square-a-grid" class="moveable-square square-a" role="button" tabindex="0" aria-label="Persegi sisi a, dapat digeser"></div>
+         <div id="square-b-grid" class="moveable-square square-b" role="button" tabindex="0" aria-label="Persegi sisi b, dapat digeser"></div>
+         <div id="square-c-grid" class="moveable-square square-c" role="button" tabindex="0" aria-label="Persegi sisi c, dapat digeser"></div>
+         <p id="square-note" class="square-note" aria-live="polite"></p>
+        </div>
+        <div class="bg-[#e8f4fb] mt-4 rounded-2xl px-5 py-4">
+         <p id="area-summary-text" class="text-center font-bold text-[#18324a]"></p>
+        </div>
+       </article>
+      </div>
+     </section>
+
+     <!-- TAHAP 2: TEORI -->
+     <section id="theory-panel" class="stage-panel" aria-labelledby="theory-heading">
+      <div class="mb-5">
+       <p class="mb-1 font-bold uppercase tracking-[.16em] text-[#ef7d33]">Tahap 2</p>
+       <h2 id="theory-heading" class="title-font font-bold text-3xl">Teori Pythagoras</h2>
+       <p class="mt-2 max-w-3xl leading-relaxed text-[#456173]">Pahami persamaan matematis di balik teorema Pythagoras dan perhatikan contoh penerapannya.</p>
+      </div>
+      <div class="grid gap-6 lg:grid-cols-[.9fr_1.1fr]">
+       <article class="formula-box rounded-3xl p-6 sm:p-8">
+        <h3 class="title-font font-bold text-2xl text-[#ffd65a]">Rumus Utama</h3>
+        <p class="mt-4 leading-relaxed">Pada setiap segitiga siku-siku, kuadrat dari sisi terpanjang (hipotenusa) selalu sama dengan hasil penjumlahan kuadrat dari dua sisi lainnya.</p>
+        <div class="mt-6 rounded-2xl bg-[#ffd65a] px-5 py-6 text-center text-[#18324a]">
+         <span class="title-font font-bold text-4xl">a² + b² = c²</span>
+        </div>
+       </article>
+       <div class="grid gap-6">
+        <article class="board-card rounded-3xl p-6">
+         <h3 class="font-bold text-xl">Contoh Perhitungan 1</h3>
+         <p class="mt-3 leading-relaxed text-[#456173]">Sebuah segitiga siku-siku memiliki sisi tegak dan sisi mendatar berturut-turut adalah 6 cm dan 8 cm. Berapa panjang sisi miringnya?</p>
+         <div class="mt-4 space-y-2 rounded-2xl bg-[#f8fcfb] border border-[#dbe6e8] p-4">
+          <p class="font-mono">a = 6, b = 8</p>
+          <p class="font-mono">c² = 6² + 8² = 36 + 64 = 100</p>
+          <p class="font-bold font-mono text-[#ef7d33]">c = √100 = 10 cm</p>
+         </div>
+        </article>
+        <article class="board-card rounded-3xl p-6">
+         <img src="https://placehold.co/600x224/eaf1ee/18324a?text=Ilustrasi+Tangga" alt="Ilustrasi Tangga" class="mb-4 h-56 w-full rounded-2xl bg-[#eaf1ee] object-cover" loading="lazy">
+         <h3 class="font-bold text-xl">Contoh Kehidupan Sehari-hari</h3>
+         <p class="mt-3 leading-relaxed text-[#456173]">Sebuah tangga disandarkan pada dinding. Jarak ujung bawah tangga ke dinding adalah 3 meter, dan tinggi dinding yang dicapai tangga adalah 4 meter. Berapa panjang tangga tersebut?</p>
+         <div class="mt-4 space-y-2 rounded-2xl bg-[#f8fcfb] border border-[#dbe6e8] p-4">
+          <p class="font-mono">Alas (a) = 3m, Tinggi (b) = 4m</p>
+          <p class="font-mono">c² = 3² + 4² = 9 + 16 = 25</p>
+          <p class="font-bold font-mono text-[#1a9a91]">c = √25 = 5 meter</p>
+         </div>
+        </article>
+       </div>
+      </div>
+     </section>
+
+     <!-- TAHAP 3: EKSPLORASI -->
+     <section id="explore-panel" class="stage-panel" aria-labelledby="explore-heading">
+      <div class="mb-5">
+       <p class="mb-1 font-bold uppercase tracking-[.16em] text-[#ef7d33]">Tahap 3</p>
+       <h2 id="explore-heading" class="title-font font-bold text-3xl">Eksplorasi Dinamis</h2>
+       <p class="mt-2 max-w-3xl leading-relaxed text-[#456173]">Ubah nilai alas dan tinggi segitiga melalui penggeser (slider) di bawah ini, lalu tebak panjang sisi miringnya!</p>
+      </div>
+      <div class="grid gap-6 lg:grid-cols-[.82fr_1.18fr]">
+       <aside class="board-card rounded-3xl p-5 sm:p-7">
+        <h3 class="mb-6 font-bold text-xl">Atur Ukuran Segitiga</h3>
+        <div class="space-y-7">
+         <div>
+          <div class="mb-2 flex items-center justify-between gap-4">
+           <label class="font-bold text-[#8a4014]" for="side-a">Panjang Alas (a)</label> 
+           <output id="side-a-output" class="rounded-lg bg-[#ffe1b5] px-3 py-1 text-lg font-bold text-[#8a4014]">3</output>
+          </div><input id="side-a" class="slider-track" type="range" min="3" max="12" value="3">
+         </div>
+         <div>
+          <div class="mb-2 flex items-center justify-between gap-4">
+           <label class="font-bold text-[#12534e]" for="side-b">Tinggi (b)</label> 
+           <output id="side-b-output" class="rounded-lg bg-[#d8f4e7] px-3 py-1 text-lg font-bold text-[#12534e]">4</output>
+          </div><input id="side-b" class="slider-track" type="range" min="3" max="12" value="4">
+         </div>
+        </div>
+        <form id="guess-form" class="mt-10 p-5 bg-[#fff9ed] rounded-2xl border-2 border-[#ffd65a]">
+         <label class="mb-2 block font-bold text-[#18324a]" for="guess-c">Berapa tebakanmu untuk sisi (c)?</label>
+         <div class="flex gap-3">
+          <input id="guess-c" class="min-w-0 flex-1 rounded-xl border-2 border-[#dbe6e8] bg-white px-4 py-3 font-bold text-[#18324a] focus:border-[#ef7d33] outline-none" type="number" min="1" step="0.1" placeholder="Misal: 5"> 
+          <button class="bg-[#ef7d33] text-white rounded-xl px-4 py-3 font-bold hover:bg-[#d96420]" type="submit">Cek Tebakan</button>
+         </div>
+         <p id="guess-feedback" class="mt-3 min-h-[24px] font-bold" aria-live="polite"></p>
+        </form>
+       </aside>
+       <div class="space-y-6">
+        <article class="board-card rounded-3xl p-5 sm:p-6">
+         <div class="mb-4 flex items-center justify-between gap-3">
+          <h3 class="font-bold text-xl">Visualisasi Segitiga</h3>
+          <span class="bg-[#dcecf8] text-[#18324a] rounded-full px-3 py-1 text-sm font-bold">Sudut Siku-siku (90°)</span>
+         </div>
+         <div class="rounded-2xl border-2 border-dashed border-[#b8cbcf] bg-[#f8fcfb] p-5">
+          <svg viewbox="0 0 520 300" class="block w-full" role="img" aria-label="Segitiga siku-siku dinamis">
+           <path id="triangle-shape" d="M90 245 L90 85 L410 245 Z" fill="#ffd65a" fill-opacity=".55" stroke="#123354" stroke-width="7" stroke-linejoin="round"></path> 
+           <path id="right-angle" d="M90 220 L115 220 L115 245" fill="none" stroke="#ef7d33" stroke-width="7"></path> 
+           <text id="label-a" x="22" y="170" fill="#18324a" font-size="20" font-weight="800">a = 3</text> 
+           <text id="label-b" x="220" y="282" fill="#18324a" font-size="20" font-weight="800">b = 4</text> 
+           <text id="label-c" x="255" y="145" fill="#18324a" font-size="20" font-weight="800">c = ?</text>
+          </svg>
+         </div>
+        </article>
+        <article class="board-card rounded-3xl p-5 sm:p-6">
+         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+           <h3 class="font-bold text-xl">Langkah Perhitungan</h3>
+           <p class="mt-1 text-[#456173]">Lihat bagaimana nilai (c) didapatkan.</p>
+          </div>
+          <button id="reveal-solution" class="bg-[#1a9a91] text-white min-h-[50px] rounded-xl px-5 py-3 font-bold hover:bg-[#148177]" type="button">Lihat Jawaban</button>
+         </div>
+         <div id="calculation-steps" class="hidden-view mt-6 space-y-4 bg-[#f8fcfb] p-5 rounded-2xl border border-[#dbe6e8]">
+          <div class="step-line">
+           <p class="text-sm font-bold text-[#456173]">Langkah 1: Hitung kuadrat alas (a) dan tinggi (b)</p>
+           <p id="step-one-value" class="mt-1 text-xl font-bold font-mono"></p>
+          </div>
+          <div class="step-line">
+           <p class="text-sm font-bold text-[#456173]">Langkah 2: Temukan nilai c²</p>
+           <p id="step-two-value" class="mt-1 text-xl font-bold font-mono"></p>
+          </div>
+          <div class="step-line border-l-[#1a9a91]">
+           <p class="text-sm font-bold text-[#456173]">Langkah 3: Hitung akar kuadrat dari c²</p>
+           <p id="step-three-value" class="mt-1 text-xl font-bold font-mono"></p>
+          </div>
+          <div class="bg-[#d8f4e7] rounded-2xl px-5 py-4 border border-[#1a9a91]">
+           <p id="final-c-answer" class="text-center text-2xl font-bold text-[#12534e] font-mono"></p>
+          </div>
+         </div>
+        </article>
+       </div>
+      </div>
+     </section>
+
+     <!-- TAHAP 4: KUIS -->
+     <section id="quiz-panel" class="stage-panel" aria-labelledby="quiz-heading">
+      <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+       <div>
+        <p class="mb-1 font-bold uppercase tracking-[.16em] text-[#ef7d33]">Tahap 4</p>
+        <h2 id="quiz-heading" class="title-font font-bold text-3xl">Kuis Evaluasi</h2>
+        <p class="mt-2 text-[#456173]">Uji pemahamanmu tentang konsep Teorema Pythagoras!</p>
+       </div>
+       <div class="bg-[#18324a] text-white rounded-2xl px-6 py-4 text-center shadow-lg">
+        <p class="text-sm font-bold text-[#ffd65a]">SKOR KAMU</p>
+        <output id="score-output" class="block text-3xl font-bold">0 / 3</output>
+       </div>
+      </div>
+
+      <!-- SOAL 1 -->
+      <article id="question-1" class="quiz-question board-card rounded-3xl p-6 sm:p-8">
+       <p class="font-bold text-[#ef7d33]">Pertanyaan 1 dari 3</p>
+       <h3 class="mt-2 font-bold text-xl">Kelompok bilangan mana yang membentuk segitiga siku-siku (Tripel Pythagoras)?</h3>
+       <div class="mt-6 grid gap-3 sm:grid-cols-3">
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="false">2, 3, 4</button> 
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="true">3, 4, 5</button> 
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="false">4, 5, 6</button>
+       </div>
+       <p id="q1-feedback" class="mt-5 min-h-[28px] font-bold" aria-live="polite"></p>
+       <button id="next-q1" class="hidden-view mt-4 bg-[#18324a] text-white rounded-xl px-6 py-3 font-bold" type="button">Pertanyaan Selanjutnya</button>
+      </article>
+
+      <!-- SOAL 2 -->
+      <article id="question-2" class="quiz-question hidden-view board-card rounded-3xl p-6 sm:p-8">
+       <p class="font-bold text-[#ef7d33]">Pertanyaan 2 dari 3</p>
+       <h3 class="mt-2 font-bold text-xl">Jika sebuah segitiga siku-siku memiliki alas (a) = 5 dan tinggi (b) = 12, berapakah panjang sisi miring (c)?</h3>
+       <div class="mt-6 grid gap-3 sm:grid-cols-3">
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="false">15</button> 
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="true">13</button> 
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="false">17</button>
+       </div>
+       <p id="q2-feedback" class="mt-5 min-h-[28px] font-bold" aria-live="polite"></p>
+       <button id="next-q2" class="hidden-view mt-4 bg-[#18324a] text-white rounded-xl px-6 py-3 font-bold" type="button">Pertanyaan Selanjutnya</button>
+      </article>
+
+      <!-- SOAL 3 -->
+      <article id="question-3" class="quiz-question hidden-view board-card rounded-3xl p-6 sm:p-8">
+       <p class="font-bold text-[#ef7d33]">Pertanyaan 3 dari 3</p>
+       <h3 class="mt-2 font-bold text-xl">Apa rumus pasti dari Teorema Pythagoras untuk mencari sisi miring (c)?</h3>
+       <div class="mt-6 grid gap-3 sm:grid-cols-3">
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="false">a + b = c</button> 
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="true">a² + b² = c²</button> 
+        <button class="choice-button rounded-2xl px-5 py-5 font-bold" type="button" data-correct="false">a² - b² = c²</button>
+       </div>
+       <p id="q3-feedback" class="mt-5 min-h-[28px] font-bold" aria-live="polite"></p>
+       <button id="show-result" class="hidden-view mt-4 bg-[#1a9a91] text-white rounded-xl px-6 py-3 font-bold" type="button">Lihat Hasil Akhir</button>
+      </article>
+
+      <!-- HASIL KUIS -->
+      <article id="quiz-result" class="hidden-view formula-box mt-6 rounded-3xl p-7 text-center">
+       <i data-lucide="trophy" class="mx-auto h-16 w-16 text-[#ffd65a] mb-4"></i>
+       <h3 class="title-font mt-3 font-bold text-3xl">Kuis Selesai!</h3>
+       <p class="mt-2 text-lg">Kamu telah menyelesaikan semua tahap pembelajaran.</p>
+       <p id="final-score" class="mt-4 text-5xl font-bold text-[#ffd65a]">0 / 3</p>
+       <button id="restart-quiz" class="bg-white text-[#18324a] mt-8 rounded-xl px-8 py-3 font-bold hover:bg-gray-100 transition" type="button">Ulangi Kuis</button>
+      </article>
+     </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t-2 border-[#dbe6e8] px-5 py-6 text-center sm:px-8 mt-4 bg-white">
+     <p class="text-[#456173] font-medium">© Media Pembelajaran Interaktif Teorema Pythagoras</p>
+    </footer>
+   </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Inisialisasi ikon Lucide
+      lucide.createIcons();
+
+      // Manajemen Tab Navigasi
+      const stageButtons = document.querySelectorAll("[data-stage]");
+      const panels = {
+        intro: document.getElementById("intro-panel"),
+        theory: document.getElementById("theory-panel"),
+        explore: document.getElementById("explore-panel"),
+        quiz: document.getElementById("quiz-panel")
+      };
+
+      function showStage(stage) {
+        Object.entries(panels).forEach(([name, panel]) => panel.classList.toggle("active", name === stage));
+        stageButtons.forEach((button) => {
+          const active = button.dataset.stage === stage;
+          button.classList.toggle("active", active);
+          if(active) {
+            button.classList.add("bg-[#18324a]", "text-white");
+            button.classList.remove("bg-white", "text-[#18324a]");
+          } else {
+            button.classList.remove("bg-[#18324a]", "text-white");
+            button.classList.add("bg-white", "text-[#18324a]");
+          }
+          button.setAttribute("aria-pressed", String(active));
+        });
+      }
+
+      stageButtons.forEach((button) => button.addEventListener("click", () => showStage(button.dataset.stage)));
+
+      // TAHAP 1: Logika Drag and Drop Persegi
+      const introA = document.getElementById("intro-a");
+      const introB = document.getElementById("intro-b");
+      const introC = document.getElementById("intro-c");
+      const workbench = document.getElementById("workbench");
+      const feedback = document.getElementById("intro-feedback");
+      const guide = document.getElementById("triangle-guide");
+      const polygon = document.getElementById("triangle-polygon");
+      const rightAngleMark = document.getElementById("right-angle-mark");
+      const note = document.getElementById("square-note");
+      const rotationSlider = document.getElementById("square-c-rotation");
+      const rotationOutput = document.getElementById("square-c-rotation-output");
+      const squares = {
+        a: document.getElementById("square-a-grid"),
+        b: document.getElementById("square-b-grid"),
+        c: document.getElementById("square-c-grid")
+      };
+
+      function safeSide(input, maximum) {
+        const value = Math.floor(Number(input.value));
+        return Math.max(1, Math.min(maximum, Number.isFinite(value) ? value : 1));
+      }
+
+      function getUnit() {
+        return window.matchMedia("(max-width: 640px)").matches ? 14 : 18;
+      }
+
+      function buildSquare(element, side) {
+        element.innerHTML = "";
+        element.style.setProperty("--side", side);
+        element.style.gridTemplateColumns = "repeat(" + side + ", minmax(0, 1fr))";
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < side * side; i += 1) {
+          const cell = document.createElement("span");
+          cell.className = "unit-cell";
+          cell.setAttribute("aria-hidden", "true");
+          fragment.appendChild(cell);
+        }
+        element.appendChild(fragment);
+      }
+
+      function setSquarePosition(element, x, y, rotation) {
+        element.dataset.x = x;
+        element.dataset.y = y;
+        element.dataset.rotation = rotation || 0;
+        element.style.left = x + "px";
+        element.style.top = y + "px";
+        element.style.transform = "rotate(" + (rotation || 0) + "deg)";
+      }
+
+      function placeLooseSquares() {
+        const unit = getUnit();
+        const a = safeSide(introA, 10);
+        const b = safeSide(introB, 10);
+        const c = safeSide(introC, 14);
+        setSquarePosition(squares.a, 38, 82, 0);
+        setSquarePosition(squares.b, Math.max(195, 80 + a * unit + 45), 92, 0);
+        setSquarePosition(squares.c, 86, Math.min(285, 145 + Math.max(a, b) * unit), Number(rotationSlider.value));
+      }
+
+      function updateRotation() {
+        const rotation = Number(rotationSlider.value);
+        rotationOutput.textContent = rotation + "°";
+        const x = Number(squares.c.dataset.x || 86);
+        const y = Number(squares.c.dataset.y || 145);
+        setSquarePosition(squares.c, x, y, rotation);
+      }
+
+      function clearFeedback() {
+        feedback.textContent = "";
+        feedback.className = "mt-5 min-h-[48px] rounded-xl px-4 py-3 text-sm font-bold";
+      }
+
+      function updateIntroSquares() {
+        const a = safeSide(introA, 10);
+        const b = safeSide(introB, 10);
+        const c = safeSide(introC, 14);
+        introA.value = a;
+        introB.value = b;
+        introC.value = c;
+
+        buildSquare(squares.a, a);
+        buildSquare(squares.b, b);
+        buildSquare(squares.c, c);
+        guide.classList.remove("visible");
+        placeLooseSquares();
+
+        document.getElementById("area-summary-text").textContent =
+          a + "² + " + b + "² = " + (a * a) + " + " + (b * b) + " = " + (a * a + b * b) + " · " + c + "² = " + (c * c);
+        note.textContent = "Luas Persegi a = " + (a * a) + " kotak · b = " + (b * b) + " kotak · c = " + (c * c) + " kotak";
+        clearFeedback();
+      }
+
+      function isRightTriangle() {
+        const a = safeSide(introA, 10);
+        const b = safeSide(introB, 10);
+        const c = safeSide(introC, 14);
+        return a * a + b * b === c * c;
+      }
+
+      function showFeedback(message, correct) {
+        feedback.textContent = message;
+        feedback.className = correct
+          ? "mt-5 min-h-[48px] rounded-xl bg-[#d8f4e7] px-4 py-3 text-sm font-bold text-[#12534e]"
+          : "mt-5 min-h-[48px] rounded-xl bg-[#ffe3dd] px-4 py-3 text-sm font-bold text-[#842c22]";
+      }
+
+      function arrangeSquares() {
+        const a = safeSide(introA, 10);
+        const b = safeSide(introB, 10);
+        const c = safeSide(introC, 14);
+        const unit = getUnit();
+        const availableWidth = workbench.clientWidth;
+        const availableHeight = workbench.clientHeight;
+        const totalWidth = b * unit;
+        
+        const angle = Math.atan2(a, b) * 180 / Math.PI;
+        const outwardAngle = angle + 180;
+        const arrangementWidth = Math.max(totalWidth, a * unit) + c * unit;
+        const offsetX = Math.max(18, (availableWidth - arrangementWidth) / 2 + a * unit);
+        const baseY = Math.max(a * unit + 24, (availableHeight + a * unit) / 2);
+        const topY = baseY - a * unit;
+        rotationSlider.value = Math.round(angle);
+        rotationOutput.textContent = Math.round(angle) + "°";
+
+        setSquarePosition(squares.a, offsetX - a * unit, topY, 0);
+        setSquarePosition(squares.b, offsetX, baseY, 0);
+        setSquarePosition(squares.c, offsetX + b * unit, baseY, outwardAngle);
+
+        guide.setAttribute("viewBox", "0 0 " + workbench.clientWidth + " " + workbench.clientHeight);
+        guide.style.left = "0";
+        guide.style.top = "0";
+        guide.style.width = "100%";
+        guide.style.height = "100%";
+        polygon.setAttribute("points", offsetX + "," + baseY + " " + offsetX + "," + topY + " " + (offsetX + b * unit) + "," + baseY);
+        rightAngleMark.setAttribute("d", "M" + offsetX + " " + (baseY - 20) + " L" + (offsetX + 20) + " " + (baseY - 20) + " L" + (offsetX + 20) + " " + baseY);
+        guide.classList.add("visible");
+        note.textContent = "Tersusun: persegi a dan b berada pada sisi siku-siku, sedangkan persegi c mengikuti sisi miring.";
+      }
+
+      document.getElementById("check-triangle").addEventListener("click", () => {
+        const a = safeSide(introA, 10);
+        const b = safeSide(introB, 10);
+        const c = safeSide(introC, 14);
+        if (isRightTriangle()) {
+          showFeedback("Tepat! " + a + "² + " + b + "² = " + c + "². Silakan klik 'Susun Otomatis' untuk melihat buktinya.", true);
+        } else {
+          showFeedback("Belum cocok: " + a + "² + " + b + "² = " + (a * a + b * b) + ", sedangkan " + c + "² = " + (c * c) + ".", false);
+        }
+      });
+
+      document.getElementById("arrange-triangle").addEventListener("click", () => {
+        if (isRightTriangle()) {
+          arrangeSquares();
+          showFeedback("Tepat! Kotak satuan ini sekarang membentuk segitiga siku-siku secara nyata.", true);
+        } else {
+          guide.classList.remove("visible");
+          showFeedback("Gagal: Susunan hanya bisa dibuat jika a² + b² = c² (Misal: 3, 4, 5).", false);
+        }
+      });
+
+      [introA, introB, introC].forEach((input) => input.addEventListener("input", updateIntroSquares));
+      rotationSlider.addEventListener("input", updateRotation);
+
+      let dragState = null;
+      Object.values(squares).forEach((square) => {
+        square.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          const rect = square.getBoundingClientRect();
+          dragState = {
+            element: square,
+            offsetX: event.clientX - rect.left,
+            offsetY: event.clientY - rect.top
+          };
+          square.classList.add("dragging");
+          square.setPointerCapture(event.pointerId);
+          guide.classList.remove("visible");
+        });
+
+        square.addEventListener("pointermove", (event) => {
+          if (!dragState || dragState.element !== square) return;
+          const boardRect = workbench.getBoundingClientRect();
+          const width = square.offsetWidth;
+          const height = square.offsetHeight;
+          const x = Math.max(0, Math.min(boardRect.width - width, event.clientX - boardRect.left - dragState.offsetX));
+          const y = Math.max(42, Math.min(boardRect.height - height, event.clientY - boardRect.top - dragState.offsetY));
+          setSquarePosition(square, x, y, square === squares.c ? Number(rotationSlider.value) : 0);
+        });
+
+        function stopDrag() {
+          if (!dragState || dragState.element !== square) return;
+          square.classList.remove("dragging");
+          dragState = null;
+          note.textContent = "Bagus! Coba susun dan dekatkan sisi-sisinya agar membentuk segitiga.";
+        }
+
+        square.addEventListener("pointerup", stopDrag);
+        square.addEventListener("pointercancel", stopDrag);
+      });
+
+      // TAHAP 3: Eksplorasi Slider & Hitung
+      const sideA = document.getElementById("side-a");
+      const sideB = document.getElementById("side-b");
+      const calculationSteps = document.getElementById("calculation-steps");
+      const guessFeedback = document.getElementById("guess-feedback");
+
+      function formatNumber(value) {
+        return Number.isInteger(value) ? String(value) : value.toFixed(2);
+      }
+
+      function updateExploration() {
+        const a = Number(sideA.value);
+        const b = Number(sideB.value);
+        const c = Math.sqrt(a * a + b * b);
+        const scale = Math.min(155 / a, 305 / b);
+        const height = a * scale;
+        const width = b * scale;
+        const x = 90;
+        const y = 245;
+        const topY = y - height;
+        const endX = x + width;
+
+        document.getElementById("side-a-output").value = a;
+        document.getElementById("side-b-output").value = b;
+        document.getElementById("triangle-shape").setAttribute("d", "M" + x + " " + y + " L" + x + " " + topY + " L" + endX + " " + y + " Z");
+        document.getElementById("right-angle").setAttribute("d", "M" + x + " " + (y - 25) + " L" + (x + 25) + " " + (y - 25) + " L" + (x + 25) + " " + y);
+        document.getElementById("label-a").setAttribute("y", topY + height / 2);
+        document.getElementById("label-b").setAttribute("x", x + width / 2 - 28);
+        document.getElementById("label-c").setAttribute("x", x + width / 2 - 18);
+        document.getElementById("label-c").setAttribute("y", topY + height / 2 - 13);
+        document.getElementById("label-a").textContent = "a = " + a;
+        document.getElementById("label-b").textContent = "b = " + b;
+        document.getElementById("label-c").textContent = "c = ?";
+        
+        document.getElementById("step-one-value").textContent = a + "² + " + b + "² = " + (a * a) + " + " + (b * b) + " = " + (a * a + b * b);
+        document.getElementById("step-two-value").textContent = "c² = " + (a * a + b * b);
+        document.getElementById("step-three-value").textContent = "c = √" + (a * a + b * b);
+        document.getElementById("final-c-answer").textContent = "Jadi, panjang c = " + formatNumber(c);
+        
+        calculationSteps.classList.add("hidden-view");
+        guessFeedback.textContent = "";
+        document.getElementById("guess-c").value = "";
+      }
+
+      [sideA, sideB].forEach((slider) => slider.addEventListener("input", updateExploration));
+
+      document.getElementById("reveal-solution").addEventListener("click", () => calculationSteps.classList.remove("hidden-view"));
+
+      document.getElementById("guess-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const guess = Number(document.getElementById("guess-c").value);
+        const answer = Math.sqrt(Number(sideA.value) ** 2 + Number(sideB.value) ** 2);
+        if (!guess) {
+          guessFeedback.textContent = "Isi dulu tebakanmu di kolom.";
+          guessFeedback.className = "mt-3 min-h-[24px] font-bold text-[#842c22]";
+        } else if (Math.abs(guess - answer) < .05) {
+          guessFeedback.textContent = "Tepat! Silakan klik 'Lihat Jawaban' untuk mencocokkan caranya.";
+          guessFeedback.className = "mt-3 min-h-[24px] font-bold text-[#12534e]";
+        } else {
+          guessFeedback.textContent = "Belum tepat. Coba hitung jumlah kuadrat a dan b!";
+          guessFeedback.className = "mt-3 min-h-[24px] font-bold text-[#842c22]";
+        }
+      });
+
+      // TAHAP 4: Kuis Interaktif
+      let score = 0;
+
+      function updateScore() {
+        document.getElementById("score-output").value = score + " / 3";
+        document.getElementById("final-score").textContent = score + " / 3";
+      }
+
+      function answerQuestion(number, button) {
+        const question = document.getElementById("question-" + number);
+        if (question.dataset.answered === "true") return;
+        question.dataset.answered = "true";
+        const correct = button.dataset.correct === "true";
+        const questionFeedback = document.getElementById("q" + number + "-feedback");
+
+        question.querySelectorAll(".choice-button").forEach((choice) => {
+          choice.disabled = true;
+          if (choice.dataset.correct === "true") choice.classList.add("correct-choice");
+        });
+
+        if (correct) {
+          score += 1;
+          questionFeedback.textContent = "Benar! Jawaban kamu tepat sekali.";
+          questionFeedback.className = "mt-5 min-h-[28px] font-bold text-[#12534e]";
+        } else {
+          button.classList.add("wrong-choice");
+          questionFeedback.textContent = "Belum tepat. Perhatikan jawaban yang benar berwarna hijau.";
+          questionFeedback.className = "mt-5 min-h-[28px] font-bold text-[#842c22]";
+        }
+
+        updateScore();
+        document.getElementById(number < 3 ? "next-q" + number : "show-result").classList.remove("hidden-view");
+      }
+
+      document.querySelectorAll(".quiz-question .choice-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const question = button.closest(".quiz-question");
+          answerQuestion(Number(question.id.replace("question-", "")), button);
+        });
+      });
+
+      document.getElementById("next-q1").addEventListener("click", () => {
+        document.getElementById("question-1").classList.add("hidden-view");
+        document.getElementById("question-2").classList.remove("hidden-view");
+      });
+
+      document.getElementById("next-q2").addEventListener("click", () => {
+        document.getElementById("question-2").classList.add("hidden-view");
+        document.getElementById("question-3").classList.remove("hidden-view");
+      });
+
+      document.getElementById("show-result").addEventListener("click", () => {
+        document.getElementById("question-3").classList.add("hidden-view");
+        document.getElementById("quiz-result").classList.remove("hidden-view");
+      });
+
+      document.getElementById("restart-quiz").addEventListener("click", () => {
+        score = 0;
+        updateScore();
+        document.querySelectorAll(".quiz-question").forEach((question, index) => {
+          question.dataset.answered = "false";
+          question.classList.toggle("hidden-view", index !== 0);
+          question.querySelectorAll(".choice-button").forEach((choice) => {
+            choice.disabled = false;
+            choice.classList.remove("correct-choice", "wrong-choice");
+          });
+          question.querySelector('[id$="-feedback"]').textContent = "";
+        });
+        document.querySelectorAll("#next-q1, #next-q2, #show-result").forEach((element) => element.classList.add("hidden-view"));
+        document.getElementById("quiz-result").classList.add("hidden-view");
+      });
+
+      window.addEventListener("resize", () => {
+        if (!guide.classList.contains("visible")) placeLooseSquares();
+      });
+
+      updateIntroSquares();
+      updateExploration();
+      updateScore();
+    });
+  </script>
+</body>
+</html>
