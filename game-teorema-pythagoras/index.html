@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Petualangan Pythagoras: Duel Mandiri Dua Sisi</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: #1e293b;
+            --panel-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --sky-accent: #38bdf8;
+            --red-team: #ef4444;
+            --red-glow: rgba(239, 68, 68, 0.25);
+            --blue-team: #0284c7;
+            --blue-glow: rgba(2, 132, 199, 0.25);
+            --green-success: #22c55e;
+            --amber-warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            width: 100vw;
+            min-height: 100vh;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .title-font {
+            font-family: 'Fraunces', serif;
+        }
+
+        /* Container Layout */
+        .game-container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Glassmorphism Panel Card */
+        .ifp-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Team Cards & Accents */
+        .team-card-red {
+            border-top: 4px solid var(--red-team);
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, rgba(30, 41, 59, 1) 100%);
+        }
+
+        .team-card-blue {
+            border-top: 4px solid var(--blue-team);
+            background: linear-gradient(180deg, rgba(2, 132, 199, 0.08) 0%, rgba(30, 41, 59, 1) 100%);
+        }
+
+        /* SVG Triangle Stage */
+        .triangle-stage {
+            background: #090d16;
+            border: 1px dashed #334155;
+            border-radius: 0.75rem;
+            position: relative;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Dynamic Progress Track Dots */
+        .track-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #334155;
+            border: 2px solid #475569;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .track-dot.active {
+            background: var(--sky-accent);
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px var(--sky-accent);
+            transform: scale(1.2);
+        }
+
+        .track-dot.done {
+            background: var(--green-success);
+            border-color: #4ade80;
+        }
+
+        /* Touch-friendly Buttons */
+        .btn-answer {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 0.85rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.15s ease;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .btn-answer:hover:not(:disabled) {
+            border-color: var(--sky-accent);
+            background: #1e293b;
+            transform: translateY(-2px);
+        }
+
+        .btn-answer:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-answer:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-answer.correct {
+            background: #064e3b !important;
+            border-color: #22c55e !important;
+            color: #4ade80 !important;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-answer.wrong {
+            background: #451a1a !important;
+            border-color: #ef4444 !important;
+            color: #fca5a5 !important;
+        }
+
+        /* Action Buttons */
+        .btn-action {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            font-weight: 800;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        /* Timer Badge */
+        .timer-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #38bdf8;
+            font-family: monospace;
+            font-weight: 800;
+            font-size: 1.1rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+        }
+
+        .timer-box.urgent {
+            color: #ef4444;
+            border-color: #ef4444;
+            animation: pulse-border 0.8s infinite alternate;
+        }
+
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0px rgba(239,68,68,0); }
+            100% { box-shadow: 0 0 12px rgba(239,68,68,0.6); }
+        }
+
+        /* Feedback Banner */
+        .feedback-box {
+            border-radius: 0.75rem;
+            padding: 0.85rem 1.1rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .feedback-box.normal { background: #0f172a; border: 1px solid #334155; color: #94a3b8; }
+        .feedback-box.success { background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; color: #4ade80; }
+        .feedback-box.warning { background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #fbbf24; }
+        .feedback-box.danger { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; }
+
+        /* Fireworks animation overlay */
+        .fireworks-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 50;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: explode 1.5s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0.2); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <!-- Header Utama -->
+        <header class="ifp-card p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="bg-sky-500/20 text-sky-400 border border-sky-500/30 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Interaktif IFP
+                    </span>
+                    <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                        2-Player Duel Mode
+                    </span>
+                </div>
+                <h1 class="title-font text-2xl sm:text-3xl font-extrabold text-sky-400">
+                    Petualangan Pythagoras: Duel Mandiri
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">
+                    Kedua tim berlomba menyelesaikan 5 tingkatan soal Pythagoras dengan tingkat kesulitan setara.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-3 bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 shrink-0">
+                <i data-lucide="trophy" class="w-6 h-6 text-amber-400"></i>
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase">Status Pertandingan</p>
+                    <p id="game-status-text" class="text-sm font-extrabold text-slate-200">Adu Cepat 5 Ronde</p>
+                </div>
+            </div>
+        </header>
+
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Papan Skor Tim Merah -->
+            <div class="ifp-card team-card-red p-4 sm:p-5 flex items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="flame" class="w-5 h-5 text-red-500"></i>
+                        <h2 class="font-extrabold text-lg text-red-400">Tim Merah</h2>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">Jalur Soal Sisi A</p>
+                </div>
+                <div class="text-right">
+                    <span id="red-score" class="text-4xl font-extrabold text-red-400 font-mono">0</span>
+                    <span class="text-xs text-slate-500 block">POIN</span>
+                </div>
+            </div>
+
+            <!-- Papan Skor Tim Biru -->
+            <div class="ifp-card team-card-blue p-4 sm:p-5 flex items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="waves" class="w-5 h-5 text-sky-400"></i>
+                        <h2 class="font-extrabold text-lg text-sky-400">Tim Biru</h2>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">Jalur Soal Sisi B</p>
+                </div>
+                <div class="text-right">
+                    <span id="blue-score" class="text-4xl font-extrabold text-sky-400 font-mono">0</span>
+                    <span class="text-xs text-slate-500 block">POIN</span>
+                </div>
+            </div>
+        </section>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- JALUR TIM MERAH -->
+            <section class="flex flex-col gap-3">
+                <div class="flex items-center justify-between px-1">
+                    <span class="font-extrabold text-sm text-red-400 flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-4 h-4"></i> Jalur Tim Merah
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <span id="red-dot-1" class="track-dot active"></span>
+                        <span id="red-dot-2" class="track-dot"></span>
+                        <span id="red-dot-3" class="track-dot"></span>
+                        <span id="red-dot-4" class="track-dot"></span>
+                        <span id="red-dot-5" class="track-dot"></span>
+                    </div>
+                </div>
+                <div id="red-card-container"></div>
+            </section>
+
+            <!-- JALUR TIM BIRU -->
+            <section class="flex flex-col gap-3">
+                <div class="flex items-center justify-between px-1">
+                    <span class="font-extrabold text-sm text-sky-400 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> Jalur Tim Biru
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <span id="blue-dot-1" class="track-dot active"></span>
+                        <span id="blue-dot-2" class="track-dot"></span>
+                        <span id="blue-dot-3" class="track-dot"></span>
+                        <span id="blue-dot-4" class="track-dot"></span>
+                        <span id="blue-dot-5" class="track-dot"></span>
+                    </div>
+                </div>
+                <div id="blue-card-container"></div>
+            </section>
+        </main>
+
+        <section id="finish-panel" class="hidden ifp-card p-6 sm:p-8 text-center flex flex-col items-center gap-4 my-4 border-2 border-amber-500/50 bg-slate-900/90">
+            <div class="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-400 mb-1">
+                <i data-lucide="award" class="w-10 h-10"></i>
+            </div>
+            <h2 class="title-font text-3xl font-extrabold text-amber-400">Pertandingan Selesai!</h2>
+            <p id="winner-message" class="text-xl font-bold text-slate-100"></p>
+            
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 max-w-lg w-full text-left my-2">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Rumus Teorema Pythagoras:</p>
+                <p class="text-lg font-mono font-extrabold text-sky-400 text-center">a² + b² = c²  👉  c = √(a² + b²)</p>
+            </div>
+
+            <button id="restart-button" onclick="startNewGame()" class="btn-action flex items-center gap-2 text-lg px-8 py-4">
+                <i data-lucide="rotate-ccw" class="w-5 h-5"></i> Main Lagi / Acak Soal Baru
+            </button>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center py-4 border-t border-slate-800 text-xs text-slate-500">
+            Media Interaktif IFP • Teorema Pythagoras • Soal Otomatis Berbeda untuk Kedua Tim
+        </footer>
+    </div>
+
+    <template id="question-card-template">
+        <article class="ifp-card p-5 flex flex-col gap-4 relative overflow-hidden">
+            <!-- Diagram Segitiga SVG -->
+            <div class="triangle-stage">
+                <svg viewBox="0 0 280 140" class="w-full h-full p-2">
+                    <!-- Segitiga Siku-Siku -->
+                    <path d="M 60 110 L 60 30 L 220 110 Z" fill="#38bdf8" fill-opacity="0.15" stroke="#38bdf8" stroke-width="3" stroke-linejoin="round" />
+                    <!-- Tanda Siku-Siku -->
+                    <path d="M 60 95 L 75 95 L 75 110" fill="none" stroke="#f59e0b" stroke-width="2.5" />
+                    
+                    <!-- Label Sisi Alas (b) -->
+                    <text x="140" y="130" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="800" class="label-alas">Alas</text>
+                    <!-- Label Sisi Tegak (a) -->
+                    <text x="45" y="70" text-anchor="end" fill="#f8fafc" font-size="12" font-weight="800" class="label-tegak">Tegak</text>
+                    <!-- Label Sisi Miring (c) -->
+                    <text x="150" y="60" text-anchor="start" fill="#38bdf8" font-size="13" font-weight="800" class="label-miring">Miring ?</text>
+                </svg>
+            </div>
+
+            <!-- Info Ronde & Timer -->
+            <div class="flex items-center justify-between gap-2">
+                <div>
+                    <span class="question-level text-xs font-extrabold uppercase px-2.5 py-1 rounded-md bg-slate-800 text-sky-400 border border-slate-700">
+                        Tingkat Easy
+                    </span>
+                    <h3 class="question-title font-extrabold text-base text-slate-100 mt-2">
+                        Mencari Sisi Miring
+                    </h3>
+                </div>
+                <div class="timer-box flex items-center gap-1.5">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span class="timer-val">30s</span>
+                </div>
+            </div>
+
+            <!-- Teks Soal -->
+            <p class="question-text text-sm text-slate-300 font-medium leading-relaxed">
+                Teks pertanyaan akan tampil di sini.
+            </p>
+
+            <!-- Pilihan Jawaban -->
+            <div class="answers-grid grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-1">
+                <button class="btn-answer" data-idx="0">A</button>
+                <button class="btn-answer" data-idx="1">B</button>
+                <button class="btn-answer" data-idx="2">C</button>
+            </div>
+
+            <!-- Kotak Feedback -->
+            <div class="feedback-box normal">
+                <i data-lucide="info" class="w-5 h-5 shrink-0"></i>
+                <span class="feedback-text">Pilih jawaban sebelum waktu habis!</span>
+            </div>
+
+            <!-- Tombol Lanjut Ronde -->
+            <button class="btn-next btn-action hidden flex items-center justify-center gap-2 w-full mt-1">
+                <span>Ronde Berikutnya</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </article>
+    </template>
+
+    <!-- Overlay Kembang Api -->
+    <div id="fireworks-container" class="fireworks-overlay"></div>
+
+    <script>
+        // BANK SOAL PYTHAGORAS BERDENGAN BANYAK VARIASI
+        const QUESTION_BANK = {
+            // RONDE 1: SANGAT MUDAH (Standard Triples 3-4-5, 6-8-10)
+            1: [
+                {
+                    title: "Mencari Sisi Miring (c)",
+                    text: "Sebuah segitiga siku-siku memiliki sisi tegak 3 cm dan alas 4 cm. Berapakah panjang sisi miringnya?",
+                    answers: ["5 cm", "6 cm", "7 cm"],
+                    correct: 0,
+                    diagram: { alas: "Alas 4 cm", tegak: "Tegak 3 cm", miring: "c = ?" },
+                    time: 30
+                },
+                {
+                    title: "Segitiga Siku-Siku (c)",
+                    text: "Sisi tegak segitiga adalah 6 cm dan alasnya 8 cm. Berapa panjang hipotenusa (sisi miring)-nya?",
+                    answers: ["9 cm", "10 cm", "12 cm"],
+                    correct: 1,
+                    diagram: { alas: "Alas 8 cm", tegak: "Tegak 6 cm", miring: "c = ?" },
+                    time: 30
+                },
+                {
+                    title: "Mencari Sisi Miring (c)",
+                    text: "Alas segitiga siku-siku adalah 9 cm dan tinggi tegaknya 12 cm. Berapakah sisi miringnya?",
+                    answers: ["14 cm", "15 cm", "18 cm"],
+                    correct: 1,
+                    diagram: { alas: "Alas 9 cm", tegak: "Tegak 12 cm", miring: "c = ?" },
+                    time: 30
+                },
+                {
+                    title: "Tripel Pythagoras Dasar",
+                    text: "Diketahui sisi siku-siku berturut-turut 12 cm dan 16 cm. Berapakah panjang sisi miringnya?",
+                    answers: ["20 cm", "22 cm", "24 cm"],
+                    correct: 0,
+                    diagram: { alas: "Alas 16 cm", tegak: "Tegak 12 cm", miring: "c = ?" },
+                    time: 30
+                }
+            ],
+
+            // RONDE 2: MUDAH (Tripel 5-12-13, 9-12-15 atau mencari sisi tegak dasar)
+            2: [
+                {
+                    title: "Mencari Sisi Miring (c)",
+                    text: "Dua sisi siku-siku panjangnya 5 cm dan 12 cm. Berapakah panjang sisi miring segitiga tersebut?",
+                    answers: ["13 cm", "14 cm", "15 cm"],
+                    correct: 0,
+                    diagram: { alas: "Alas 12 cm", tegak: "Tegak 5 cm", miring: "c = ?" },
+                    time: 30
+                },
+                {
+                    title: "Mencari Sisi Tegak (a)",
+                    text: "Sisi miring segitiga siku-siku adalah 10 cm dan sisi alasnya 8 cm. Berapakah sisi tegaknya?",
+                    answers: ["5 cm", "6 cm", "7 cm"],
+                    correct: 1,
+                    diagram: { alas: "Alas 8 cm", tegak: "a = ?", miring: "Miring 10 cm" },
+                    time: 30
+                },
+                {
+                    title: "Mencari Sisi Alas (b)",
+                    text: "Panjang sisi miring segitiga siku-siku 15 cm dan tinggi tegaknya 9 cm. Berapa panjang alasnya?",
+                    answers: ["11 cm", "12 cm", "13 cm"],
+                    correct: 1,
+                    diagram: { alas: "b = ?", tegak: "Tegak 9 cm", miring: "Miring 15 cm" },
+                    time: 30
+                },
+                {
+                    title: "Mencari Sisi Miring (c)",
+                    text: "Sebuah segitiga siku-siku memiliki alas 15 cm dan tinggi 20 cm. Berapakah panjang sisi miringnya?",
+                    answers: ["23 cm", "24 cm", "25 cm"],
+                    correct: 2,
+                    diagram: { alas: "Alas 15 cm", tegak: "Tegak 20 cm", miring: "c = ?" },
+                    time: 30
+                }
+            ],
+
+            // RONDE 3: SEDANG (Tripel 8-15-17, 7-24-25, atau aplikasi nyata)
+            3: [
+                {
+                    title: "Pasangan 8 dan 15",
+                    text: "Dua sisi siku-siku panjangnya 8 cm dan 15 cm. Berapakah panjang sisi miring segitiga tersebut?",
+                    answers: ["17 cm", "19 cm", "21 cm"],
+                    correct: 0,
+                    diagram: { alas: "Alas 15 cm", tegak: "Tegak 8 cm", miring: "c = ?" },
+                    time: 25
+                },
+                {
+                    title: "Mencari Sisi Tegak (a)",
+                    text: "Sisi miring segitiga siku-siku adalah 13 cm dan sisi alasnya 12 cm. Berapakah tinggi tegaknya?",
+                    answers: ["4 cm", "5 cm", "6 cm"],
+                    correct: 1,
+                    diagram: { alas: "Alas 12 cm", tegak: "a = ?", miring: "Miring 13 cm" },
+                    time: 25
+                },
+                {
+                    title: "Mencari Sisi Alas (b)",
+                    text: "Sisi miring segitiga siku-siku adalah 25 cm dan tinggi tegaknya 7 cm. Berapakah panjang alasnya?",
+                    answers: ["22 cm", "24 cm", "26 cm"],
+                    correct: 1,
+                    diagram: { alas: "b = ?", tegak: "Tegak 7 cm", miring: "Miring 25 cm" },
+                    time: 25
+                },
+                {
+                    title: "Tripel 10-24-26",
+                    text: "Suatu segitiga siku-siku memiliki sisi tegak 10 cm dan alas 24 cm. Hitung panjang sisi miringnya!",
+                    answers: ["25 cm", "26 cm", "28 cm"],
+                    correct: 1,
+                    diagram: { alas: "Alas 24 cm", tegak: "Tegak 10 cm", miring: "c = ?" },
+                    time: 25
+                }
+            ],
+
+            // RONDE 4: SEDANG-TINGGI (Mencari Sisi Tegak/Alas Angka Besar)
+            4: [
+                {
+                    title: "Mencari Sisi Tegak (a)",
+                    text: "Sisi miring segitiga siku-siku adalah 25 cm dan alasnya 24 cm. Berapakah panjang sisi tegaknya?",
+                    answers: ["7 cm", "8 cm", "9 cm"],
+                    correct: 0,
+                    diagram: { alas: "Alas 24 cm", tegak: "a = ?", miring: "Miring 25 cm" },
+                    time: 25
+                },
+                {
+                    title: "Pasangan 9 dan 40",
+                    text: "Dua sisi siku-siku segitiga adalah 9 cm dan 40 cm. Berapakah panjang sisi miringnya?",
+                    answers: ["41 cm", "42 cm", "43 cm"],
+                    correct: 0,
+                    diagram: { alas: "Alas 40 cm", tegak: "Tegak 9 cm", miring: "c = ?" },
+                    time: 25
+                },
+                {
+                    title: "Aplikasi Tangga Tembok",
+                    text: "Sebuah tangga sepanjang 17 m disandarkan ke tembok. Jarak kaki tangga ke tembok 8 m. Berapa tinggi tembok yang dicapai tangga?",
+                    answers: ["12 m", "14 m", "15 m"],
+                    correct: 2,
+                    diagram: { alas: "Alas 8 m", tegak: "Tinggi ?", miring: "Tangga 17 m" },
+                    time: 25
+                },
+                {
+                    title: "Mencari Sisi Siku-Siku",
+                    text: "Sisi miring segitiga adalah 20 cm dan salah satu sisi siku-sikunya 16 cm. Berapa panjang sisi siku-siku lainnya?",
+                    answers: ["12 cm", "14 cm", "15 cm"],
+                    correct: 0,
+                    diagram: { alas: "Alas 16 cm", tegak: "a = ?", miring: "Miring 20 cm" },
+                    time: 25
+                }
+            ],
+
+            // RONDE 5: HARUS CEPAT & TELITI (Tripel 20-21-29, 12-35-37, 16-30-34)
+            5: [
+                {
+                    title: "Tantangan Akhir (20, 21, c)",
+                    text: "Sebuah segitiga siku-siku memiliki sisi siku-siku 20 cm dan 21 cm. Berapakah panjang sisi miringnya?",
+                    answers: ["28 cm", "29 cm", "30 cm"],
+                    correct: 1,
+                    diagram: { alas: "Alas 21 cm", tegak: "Tegak 20 cm", miring: "c = ?" },
+                    time: 20
+                },
+                {
+                    title: "Tantangan Akhir (Mencari Sisi)",
+                    text: "Sebuah segitiga siku-siku memiliki sisi miring 29 cm dan salah satu sisi 20 cm. Berapakah panjang sisi lainnya?",
+                    answers: ["19 cm", "21 cm", "23 cm"],
+                    correct: 1,
+                    diagram: { alas: "Alas 20 cm", tegak: "a = ?", miring: "Miring 29 cm" },
+                    time: 20
+                },
+                {
+                    title: "Tantangan Tripel 12-35-37",
+                    text: "Panjang alas segitiga 35 cm dan tinggi tegaknya 12 cm. Berapakah panjang sisi miringnya?",
+                    answers: ["36 cm", "37 cm", "39 cm"],
+                    correct: 1,
+                    diagram: { alas: "Alas 35 cm", tegak: "Tegak 12 cm", miring: "c = ?" },
+                    time: 20
+                },
+                {
+                    title: "Tantangan Tripel 16-30-34",
+                    text: "Sisi miring segitiga adalah 34 cm dan sisi alasnya 30 cm. Berapakah panjang sisi tegaknya?",
+                    answers: ["16 cm", "18 cm", "20 cm"],
+                    correct: 0,
+                    diagram: { alas: "Alas 30 cm", tegak: "a = ?", miring: "Miring 34 cm" },
+                    time: 20
+                }
+            ]
+        };
+
+        // STATE PERMAIANAN
+        let gameState = {
+            red: { score: 0, round: 0, finished: false, timer: null, remaining: 0, questions: [] },
+            blue: { score: 0, round: 0, finished: false, timer: null, remaining: 0, questions: [] }
+        };
+
+        // Fungsi mengacak array (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Fungsi Memilih 5 Soal Berbeda untuk Kedua Tim dengan Tingkat Kesulitan Setara
+        function generateGameQuestions() {
+            const redQuestions = [];
+            const blueQuestions = [];
+
+            for (let round = 1; round <= 5; round++) {
+                const pool = QUESTION_BANK[round];
+                const shuffledPool = shuffleArray(pool);
+
+                // Tim Merah dapat soal A, Tim Biru dapat soal B dari ronde/kesulitan yang sama
+                redQuestions.push(shuffledPool[0]);
+                blueQuestions.push(shuffledPool[1] || shuffledPool[0]);
+            }
+
+            return { redQuestions, blueQuestions };
+        }
+
+        // Memulai Permainan Baru / Reset
+        function startNewGame() {
+            // Hentikansesemua timer aktif
+            if (gameState.red.timer) clearInterval(gameState.red.timer);
+            if (gameState.blue.timer) clearInterval(gameState.blue.timer);
+
+            const { redQuestions, blueQuestions } = generateGameQuestions();
+
+            gameState = {
+                red: { score: 0, round: 0, finished: false, timer: null, remaining: 0, questions: redQuestions },
+                blue: { score: 0, round: 0, finished: false, timer: null, remaining: 0, questions: blueQuestions }
+            };
+
+            document.getElementById('red-score').textContent = '0';
+            document.getElementById('blue-score').textContent = '0';
+            document.getElementById('finish-panel').classList.add('hidden');
+            document.getElementById('game-status-text').textContent = 'Adu Cepat 5 Ronde';
+
+            updateProgressDots('red');
+            updateProgressDots('blue');
+
+            renderQuestionCard('red');
+            renderQuestionCard('blue');
+        }
+
+        // Update Indikator Progres Ronde
+        function updateProgressDots(team) {
+            const currentRound = gameState[team].round;
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.getElementById(`${team}-dot-${i}`);
+                if (!dot) continue;
+                dot.classList.remove('active', 'done');
+                if (i <= currentRound) {
+                    dot.classList.add('done');
+                } else if (i === currentRound + 1 && !gameState[team].finished) {
+                    dot.classList.add('active');
+                }
+            }
+        }
+
+        // Render Kartu Soal Tim
+        function renderQuestionCard(team) {
+            const container = document.getElementById(`${team}-card-container`);
+            container.innerHTML = '';
+
+            if (gameState[team].finished) {
+                container.innerHTML = `
+                    <div class="ifp-card p-6 text-center border border-emerald-500/40 bg-slate-900/80">
+                        <i data-lucide="check-circle-2" class="w-12 h-12 text-emerald-400 mx-auto mb-2"></i>
+                        <h3 class="font-extrabold text-lg text-emerald-400">${team === 'red' ? 'Tim Merah' : 'Tim Biru'} Selesai!</h3>
+                        <p class="text-xs text-slate-400 mt-1">Telah menyelesaikan seluruh 5 soal.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const currentQ = gameState[team].questions[gameState[team].round];
+            const template = document.getElementById('question-card-template');
+            const clone = template.content.cloneNode(true);
+            const article = clone.querySelector('article');
+
+            // Set styling khusus tim
+            if (team === 'red') article.classList.add('team-card-red');
+            else article.classList.add('team-card-blue');
+
+            // Update Label Diagram
+            article.querySelector('.label-alas').textContent = currentQ.diagram.alas;
+            article.querySelector('.label-tegak').textContent = currentQ.diagram.tegak;
+            article.querySelector('.label-miring').textContent = currentQ.diagram.miring;
+
+            // Info Soal
+            article.querySelector('.question-level').textContent = `Ronde ${gameState[team].round + 1} / 5`;
+            article.querySelector('.question-title').textContent = currentQ.title;
+            article.querySelector('.question-text').textContent = currentQ.text;
+
+            // Tombol Jawaban
+            const buttons = article.querySelectorAll('.btn-answer');
+            buttons.forEach((btn, idx) => {
+                btn.textContent = currentQ.answers[idx];
+                btn.onclick = () => handleAnswer(team, idx, article);
+            });
+
+            // Tombol Lanjut Ronde
+            const nextBtn = article.querySelector('.btn-next');
+            nextBtn.onclick = () => advanceRound(team);
+
+            container.appendChild(clone);
+            lucide.createIcons();
+
+            // Jalankan Timer
+            startTimer(team, article, currentQ.time);
+        }
+
+        // Logika Timer
+        function startTimer(team, cardElement, duration) {
+            if (gameState[team].timer) clearInterval(gameState[team].timer);
+
+            gameState[team].remaining = duration;
+            const timerVal = cardElement.querySelector('.timer-val');
+            const timerBox = cardElement.querySelector('.timer-box');
+
+            timerVal.textContent = `${gameState[team].remaining}s`;
+
+            gameState[team].timer = setInterval(() => {
+                gameState[team].remaining--;
+                timerVal.textContent = `${gameState[team].remaining}s`;
+
+                if (gameState[team].remaining <= 5) {
+                    timerBox.classList.add('urgent');
+                }
+
+                if (gameState[team].remaining <= 0) {
+                    clearInterval(gameState[team].timer);
+                    handleTimeout(team, cardElement);
+                }
+            }, 1000);
+        }
+
+        // Penanganan Saat Jawaban Dipilih
+        function handleAnswer(team, selectedIdx, cardElement) {
+            clearInterval(gameState[team].timer);
+
+            const currentQ = gameState[team].questions[gameState[team].round];
+            const buttons = cardElement.querySelectorAll('.btn-answer');
+            const feedbackBox = cardElement.querySelector('.feedback-box');
+            const nextBtn = cardElement.querySelector('.btn-next');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === currentQ.correct) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (selectedIdx === currentQ.correct) {
+                gameState[team].score += 20;
+                document.getElementById(`${team}-score`).textContent = gameState[team].score;
+
+                feedbackBox.className = "feedback-box success";
+                feedbackBox.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5 shrink-0"></i><span class="feedback-text">Tepat sekali! +20 Poin. (${currentQ.answers[currentQ.correct]})</span>`;
+            } else {
+                buttons[selectedIdx].classList.add('wrong');
+                feedbackBox.className = "feedback-box danger";
+                feedbackBox.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5 shrink-0"></i><span class="feedback-text">Belum tepat. Jawaban benar: ${currentQ.answers[currentQ.correct]}</span>`;
+            }
+
+            nextBtn.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        // Penanganan Saat Waktu Habis
+        function handleTimeout(team, cardElement) {
+            const currentQ = gameState[team].questions[gameState[team].round];
+            const buttons = cardElement.querySelectorAll('.btn-answer');
+            const feedbackBox = cardElement.querySelector('.feedback-box');
+            const nextBtn = cardElement.querySelector('.btn-next');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === currentQ.correct) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            feedbackBox.className = "feedback-box warning";
+            feedbackBox.innerHTML = `<i data-lucide="alert-triangle" class="w-5 h-5 shrink-0"></i><span class="feedback-text">Waktu habis! Jawaban benar: ${currentQ.answers[currentQ.correct]}</span>`;
+
+            nextBtn.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        // Lanjut ke Ronde Berikutnya
+        function advanceRound(team) {
+            gameState[team].round++;
+            updateProgressDots(team);
+
+            if (gameState[team].round >= 5) {
+                gameState[team].finished = true;
+                renderQuestionCard(team);
+                checkGameFinish();
+            } else {
+                renderQuestionCard(team);
+            }
+        }
+
+        // Cek Apakah Kedua Tim Sudah Selesai
+        function checkGameFinish() {
+            if (gameState.red.finished && gameState.blue.finished) {
+                const finishPanel = document.getElementById('finish-panel');
+                const winnerMsg = document.getElementById('winner-message');
+
+                let msg = '';
+                if (gameState.red.score > gameState.blue.score) {
+                    msg = `🎉 Tim Merah Menang dengan ${gameState.red.score} Poin! (Tim Biru: ${gameState.blue.score} Poin)`;
+                    triggerFireworks();
+                } else if (gameState.blue.score > gameState.red.score) {
+                    msg = `🎉 Tim Biru Menang dengan ${gameState.blue.score} Poin! (Tim Merah: ${gameState.red.score} Poin)`;
+                    triggerFireworks();
+                } else {
+                    msg = `🤝 Hasil Seri Sempurna! Kedua tim meraih ${gameState.red.score} Poin!`;
+                    triggerFireworks();
+                }
+
+                winnerMsg.textContent = msg;
+                finishPanel.classList.remove('hidden');
+                finishPanel.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Efek Kembang Api Kemenangan
+        function triggerFireworks() {
+            const container = document.getElementById('fireworks-container');
+            container.innerHTML = '';
+
+            const colors = ['#38bdf8', '#ef4444', '#22c55e', '#f59e0b', '#a855f7'];
+
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const x = (Math.random() - 0.5) * 400 + 'px';
+                const y = (Math.random() - 0.5) * 400 + 'px';
+
+                particle.style.setProperty('--x', x);
+                particle.style.setProperty('--y', y);
+                particle.style.left = '50%';
+                particle.style.top = '40%';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                container.appendChild(particle);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 1600);
+        }
+
+        // Inisialisasi Saat Halaman Dimuat
+        window.onload = function() {
+            lucide.createIcons();
+            startNewGame();
+        };
+    </script>
+</body>
+</html>
