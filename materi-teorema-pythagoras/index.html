@@ -25,9 +25,12 @@
     * { box-sizing: border-box; }
 
     body {
-      width: 100%;
-      min-height: calc(100 * min(var(--vh, 1vh), 1vh));
-      margin: 0;
+      /*width: 100%;
+      min-height: calc(100 * min(var(--vh, 1vh), 1vh));*/
+      margin: 0; 
+      height: 100vh; 
+      width: 100vw; 
+      overflow: hidden;
       color: var(--ink);
       font-family: "DM Sans", sans-serif;
     }
@@ -257,13 +260,6 @@
     .step-line {
       padding-left: 1rem;
       border-left: 4px solid #ffd65a;
-    }
-
-    .body { 
-      margin: 0; 
-      height: 100vh; 
-      width: 100vw; 
-      overflow: hidden; 
     }
 
     @media (max-width: 640px) {
