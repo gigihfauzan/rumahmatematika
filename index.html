@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Media Teorema Pythagoras</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#152C49',
+                            900: '#0F2038',
+                            hover: '#1E3B60'
+                        },
+                        cream: {
+                            50: '#FAF7F2',
+                            100: '#F5EFE6',
+                            200: '#E8DEC9'
+                        },
+                        brand: {
+                            orange: '#F26B38',
+                            yellow: '#FFC837',
+                            tabbg: '#D9E2EC'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #FAF7F2;
+            background-image: radial-gradient(#CBD5E1 0.8px, transparent 0.8px);
+            background-size: 20px 20px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .serif-font {
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        .card-hover-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgba(15, 32, 56, 0.12), 0 10px 10px -5px rgba(15, 32, 56, 0.04);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800 antialiased">
+
+    <div>
+        <!-- Header Navy Banner (Matching screenshot design) -->
+        <header class="bg-navy-800 text-white pt-8 pb-10 px-4 md:px-8 border-b border-navy-900 shadow-md">
+            <div class="max-w-5xl mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                <!-- Title & Tags -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-brand-orange text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                            Matematika
+                        </span>
+                        <span class="bg-brand-yellow text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                            SMP Kelas 8
+                        </span>
+                    </div>
+                    <h1 class="serif-font text-3xl md:text-4xl lg:text-5xl font-bold tracking-wide">
+                        Media Teorema Pythagoras
+                    </h1>
+                </div>
+
+                <!-- Objective Card -->
+                <div class="bg-navy-900/60 border border-slate-700/60 rounded-xl p-4 max-w-md flex items-start gap-3 backdrop-blur-sm shadow-inner">
+                    <div class="text-brand-yellow text-2xl mt-0.5">
+                        <i class="fa-solid font-bold fa-bullseye"></i>
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-200 leading-relaxed font-medium">
+                        Siswa dapat memahami dan membuktikan rumus Teorema Pythagoras 
+                        <span class="text-brand-yellow font-bold">(a² + b² = c²)</span> secara interaktif.
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Hub Content Area -->
+        <main class="max-w-5xl mx-auto px-4 md:px-8 py-10">
+
+            <!-- Subtitle Intro -->
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-brand-orange text-xs md:text-sm font-bold tracking-widest uppercase mb-1 block">
+                    PORTAL PEMBELAJARAN
+                </span>
+                <h2 class="serif-font text-2xl md:text-3xl font-bold text-navy-800 mb-2">
+                    Pilih Modul Pembelajaran
+                </h2>
+                <p class="text-slate-600 text-sm md:text-base">
+                    Silakan pilih materi teori atau tes kelompok di bawah ini untuk memulai aktivitas belajar.
+                </p>
+            </div>
+
+            <!-- Learning Steps Bar -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+                <div class="bg-white/80 backdrop-blur border border-slate-200/80 rounded-xl p-3 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-orange-100 text-brand-orange font-bold flex items-center justify-center text-sm shrink-0">
+                        1
+                    </div>
+                    <p class="text-xs text-slate-600 font-medium">
+                        <strong class="text-slate-800 block">Langkah Pertama:</strong> Pelajari konsep dasar Teorema Pythagoras di modul Materi.
+                    </p>
+                </div>
+                <div class="bg-white/80 backdrop-blur border border-slate-200/80 rounded-xl p-3 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-navy-800 text-white font-bold flex items-center justify-center text-sm shrink-0">
+                        2
+                    </div>
+                    <p class="text-xs text-slate-600 font-medium">
+                        <strong class="text-slate-800 block">Langkah Kedua:</strong> Uji pemahaman dan kolaborasi kelompok di Tes Kelompok.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Main Portal Link Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+
+                <!-- CARD 1: MATERI -->
+                <div class="card-hover-effect bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between group">
+                    <div class="p-6 md:p-8 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-orange-100 text-brand-orange text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                TAHAP 1 • TEORI
+                            </span>
+                            <div class="w-12 h-12 bg-orange-50 rounded-2xl border border-orange-100 flex items-center justify-center text-brand-orange text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-book-open"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="serif-font text-2xl font-bold text-navy-800 mb-2 group-hover:text-brand-orange transition-colors">
+                                Materi Teorema Pythagoras
+                            </h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                Pelajari pembuktian rumus, konsep dasar segitiga siku-siku, serta berbagai contoh soal interaktif.
+                            </p>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-100 flex items-center gap-4 text-xs text-slate-500">
+                            <span class="flex items-center gap-1.5"><i class="fa-regular fa-clock text-brand-orange"></i> Estimasi: 15-20 Menit</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-laptop text-brand-orange"></i> Interaktif</span>
+                        </div>
+                    </div>
+
+                    <div class="p-6 bg-slate-50 border-t border-slate-100">
+                        <a href="https://gigihichyarfauzan.my.id/materi-teorema-pythagoras/" 
+                           target="_blank"
+                           class="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-3.5 px-6 rounded-xl text-center shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3 group-hover:gap-4">
+                            <span>Buka Materi Pembelajaran</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- CARD 2: TES KELOMPOK -->
+                <div class="card-hover-effect bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col justify-between group">
+                    <div class="p-6 md:p-8 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-blue-100 text-navy-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                TAHAP 2 • EKSPLORASI & TES
+                            </span>
+                            <div class="w-12 h-12 bg-navy-800/10 rounded-2xl border border-navy-800/20 flex items-center justify-center text-navy-800 text-xl group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-gamepad"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="serif-font text-2xl font-bold text-navy-800 mb-2 group-hover:text-blue-600 transition-colors">
+                                Tes Kelompok & Game
+                            </h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                Terapkan pengetahuanmu dalam game eksplorasi kelompok interaktif untuk memecahkan soal Pythagoras.
+                            </p>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-100 flex items-center gap-4 text-xs text-slate-500">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-users text-navy-800"></i> Mode Kelompok</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-trophy text-brand-yellow"></i> Gamifikasi</span>
+                        </div>
+                    </div>
+
+                    <div class="p-6 bg-slate-50 border-t border-slate-100">
+                        <a href="https://gigihichyarfauzan.my.id/game-teorema-pythagoras/" 
+                           target="_blank"
+                           class="w-full bg-navy-800 hover:bg-navy-900 text-white font-bold py-3.5 px-6 rounded-xl text-center shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-3 group-hover:gap-4">
+                            <span>Mulai Tes Kelompok</span>
+                            <i class="fa-solid fa-gamepad"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quick Reference Box -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-amber-50 text-brand-yellow rounded-xl flex items-center justify-center text-2xl shrink-0 border border-amber-200">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-base">Petunjuk Penggunaan</h4>
+                        <p class="text-slate-600 text-xs md:text-sm">
+                            Klik tombol pada masing-masing kartu di atas. Link akan terbuka secara otomatis di tab baru sehingga halaman portal ini tetap tersimpan.
+                        </p>
+                    </div>
+                </div>
+                <div class="shrink-0">
+                    <button onclick="copyLinks()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs py-2.5 px-4 rounded-lg transition-colors flex items-center gap-2 border border-slate-300">
+                        <i class="fa-regular fa-copy"></i>
+                        <span id="copy-btn-text">Salin Tautan Modul</span>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-12">
+        <div class="max-w-5xl mx-auto px-4">
+            <p>© Media Pembelajaran Interaktif Teorema Pythagoras • SMP Kelas 8</p>
+        </div>
+    </footer>
+
+    <script>
+        function copyLinks() {
+            const linksText = "Materi: https://gigihichyarfauzan.my.id/materi-teorema-pythagoras/\nTes Kelompok: https://gigihichyarfauzan.my.id/game-teorema-pythagoras/";
+            
+            // Fallback clipboard method
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = linksText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempTextArea);
+
+            const btnText = document.getElementById("copy-btn-text");
+            btnText.innerText = "Tautan Berhasil Disalin!";
+            setTimeout(() => {
+                btnText.innerText = "Salin Tautan Modul";
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
