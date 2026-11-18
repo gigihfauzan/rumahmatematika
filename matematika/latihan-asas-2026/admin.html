@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Latihan Pra-ASAS</title><link rel="stylesheet" href="style.css"></head><body><div class="w">
+<div id="lg" class="c"><h1>🔐 Admin Guru</h1><label for="pw">Kata sandi</label><input id="pw" type="password"><p></p><button id="ok">Masuk</button><p id="m"></p></div>
+<div id="ad" class="c hide"><h1>Pengaturan</h1>
+<label><input type="checkbox" id="b" style="width:auto"> Ujian dibuka</label><label><input type="checkbox" id="s" style="width:auto"> Satu kali pengerjaan (nama+absen+kelas)</label><label><input type="checkbox" id="p" style="width:auto"> Tampilkan kunci jawaban ke siswa</label>
+<label for="mn">Batas waktu (menit, 0 = tanpa batas)</label><input id="mn" type="number" min="0"><p></p><button id="sv">Simpan Pengaturan</button> <span id="sm"></span></div>
+<div id="hs" class="c hide"><h1>Hasil Siswa</h1><p id="st"></p><label for="fk">Filter kelas</label><select id="fk"><option value="">Semua</option></select><p></p>
+<div class="bar"><button class="s" id="rl">Muat Ulang</button><button id="dl">⬇ Unduh Spreadsheet (.xlsx)</button></div><p id="dm"></p><div class="sc"><table id="tb"></table></div></div></div>
+<script src="config.js"></script><script>
+var $=function(x){return document.getElementById(x)},PW='',ROWS=[];
+function api(o){o.aksi='admin';o.pw=PW;return fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(o)}).then(function(r){return r.json()})}
+function muat(){return api({op:'hasil'}).then(function(d){if(d.error){$('m').textContent=d.error;return false}
+ $('lg').classList.add('hide');$('ad').classList.remove('hide');$('hs').classList.remove('hide');
+ $('b').checked=d.cfg.buka;$('s').checked=d.cfg.satu;$('p').checked=d.cfg.pemb;$('mn').value=d.cfg.menit;ROWS=d.rows;
+ $('st').innerHTML='Peserta: <b>'+d.n+'</b> • Rata-rata: <b>'+d.rata.toFixed(2)+'</b> • Tertinggi: <b>'+d.maks+'</b> • Terendah: <b>'+d.min+'</b>';
+ var ks={};ROWS.forEach(function(r){ks[r.kelas]=1});var f=$('fk').value;$('fk').innerHTML='<option value="">Semua</option>'+Object.keys(ks).sort().map(function(k){return '<option'+(k==f?' selected':'')+'>'+k+'</option>'}).join('');tabel();return true},function(){$('m').textContent='Tidak bisa terhubung. Periksa URL di config.js.'})}
+function tabel(){var f=$('fk').value,h='<tr><th>Kelas</th><th>Absen</th><th>Nama</th><th>Skor</th><th>Nilai</th><th>Waktu</th></tr>';
+ ROWS.filter(function(r){return !f||r.kelas==f}).forEach(function(r){h+='<tr><td>'+r.kelas+'</td><td>'+r.absen+'</td><td>'+r.nama+'</td><td>'+r.skor+'</td><td>'+r.nilai+'</td><td>'+r.waktu+'</td></tr>'});$('tb').innerHTML=h}
+$('ok').onclick=function(){PW=$('pw').value;muat()};$('rl').onclick=muat;$('fk').onchange=tabel;
+$('sv').onclick=function(){api({op:'simpan',buka:$('b').checked,satu:$('s').checked,pemb:$('p').checked,menit:$('mn').value}).then(function(){$('sm').textContent='✔ Tersimpan'})};
+$('dl').onclick=function(){$('dm').textContent='Menyiapkan file… (bisa 10–30 detik)';api({op:'xlsx'}).then(function(d){if(d.error||!d.xlsx){$('dm').textContent=d.error||'Gagal membuat file.';return}
+ var a=atob(d.xlsx),u=new Uint8Array(a.length);for(var i=0;i<a.length;i++)u[i]=a.charCodeAt(i);var l=document.createElement('a');l.href=URL.createObjectURL(new Blob([u]));l.download='Hasil_Latihan_Pra-ASAS.xlsx';l.click();$('dm').textContent='✔ File diunduh'},function(){$('dm').textContent='Gagal mengunduh.'})};
+</script></body></html>

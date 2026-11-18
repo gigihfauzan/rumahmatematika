@@ -1,0 +1,251 @@
+{
+ "judul": "Latihan Soal Pra-ASAS Matematika Kelas VIII",
+ "soal": [
+  {
+   "tipe": "pg",
+   "teks": "Bentuk sederhana dari $(-3)\\times(-3)\\times(-3)\\times(-3)$ adalah ….",
+   "opsi": [
+    "$(-3)^{4}$",
+    "$(-4)^{3}$",
+    "$\\left(-3^{4}\\right)$",
+    "$\\left(-4^{3}\\right)$"
+   ],
+   "no": 1
+  },
+  {
+   "tipe": "pg",
+   "teks": "Diberikan sebuah bagun persegi panjang sebagai berikut!",
+   "opsi": [
+    "$3\\ cm$",
+    "$6\\ cm$",
+    "$8\\ cm$",
+    "$9\\ cm$"
+   ],
+   "gambar": "img/image1.png",
+   "teks2": "Diketahui luas persegi panjang $1\\ cm^{2}$. Jika lebar persegi panjang tersebut $3^{-2}\\ cm$ maka panjangnya adalah ….",
+   "no": 2
+  },
+  {
+   "tipe": "pg",
+   "teks": "Hasil dari operasi hitung bentuk akar $7\\sqrt{12}+\\sqrt{48}-5\\sqrt{27}$ adalah ….",
+   "opsi": [
+    "$\\sqrt{3}$",
+    "$2\\sqrt{3}$",
+    "$3\\sqrt{3}$",
+    "$4\\sqrt{3}$"
+   ],
+   "no": 3
+  },
+  {
+   "tipe": "pg",
+   "teks": "Hasil dari $\\sqrt{5}\\times\\sqrt{32}+\\sqrt{10}$ adalah ….",
+   "opsi": [
+    "$3\\sqrt{10}$",
+    "$5\\sqrt{10}$",
+    "$9\\sqrt{14}$",
+    "$13\\sqrt{14}$"
+   ],
+   "no": 4
+  },
+  {
+   "tipe": "pg",
+   "teks": "Berdasarkan teks tersebut, penulisan ukuran ameba *Entamoeba gingivalis* dalam notasi ilmiah yang tepat adalah ….",
+   "opsi": [
+    "$1{,}2\\times10^{4}$",
+    "$1{,}2\\times10^{5}$",
+    "$1{,}2\\times10^{-4}$",
+    "$1{,}2\\times10^{-5}$"
+   ],
+   "bacaan": "<b>Perkembangan Ameba</b><br>Ameba merupakan makhluk hidup kecil yang hanya dapat dilihat melalui alat seperti mikroskop. Salah satu jenis ameba adalah <i>Entamoeba gingivalis</i> yang memiliki ukuran $0{,}000012\\ m$. Ameba berkembang biak dengan cara membelah diri menjadi 2 sehingga jumlahnya menjadi dua kali lipat dari sebelumnya.",
+   "pre": "Perhatikan teks berikut!",
+   "no": 5
+  },
+  {
+   "tipe": "pg",
+   "teks": "Di antara bilangan berikut, yang merupakan pasangan bilangan tripel Pythagoras adalah ….",
+   "opsi": [
+    "$17,\\ 15\\ \\text{dan}\\ 8$",
+    "$14,\\ 8\\ \\text{dan}\\ 5$",
+    "$10,\\ 7\\ \\text{dan}\\ 6$",
+    "$5,\\ 4\\ \\text{dan}\\ 8$"
+   ],
+   "no": 6
+  },
+  {
+   "tipe": "pg",
+   "teks": "Sebuah segitiga siku-siku memiliki ukuran alas $9\\ cm$ dan tinggi $40\\ cm$. Panjang sisi miring segitiga tersebut adalah ….",
+   "opsi": [
+    "$36\\ cm$",
+    "$41\\ cm$",
+    "$45\\ cm$",
+    "$54\\ cm$"
+   ],
+   "no": 7
+  },
+  {
+   "tipe": "pg",
+   "teks": "Perhatikan gambar berikut!",
+   "opsi": [
+    "$2\\sqrt{2}$",
+    "$2\\sqrt{3}$",
+    "$4\\sqrt{6}$",
+    "$8\\sqrt{6}$"
+   ],
+   "gambar": "img/image2.png",
+   "teks2": "Jika panjang $BD=4\\ cm$, panjang $AC$ adalah ….",
+   "no": 8
+  },
+  {
+   "tipe": "pg",
+   "teks": "Diberikan pernyataan “$21$ lebihnya dari $5a$ adalah $36$”. Pernyataan tersebut dapat ditulis ….",
+   "opsi": [
+    "$5a+21=36$",
+    "$5a+36=21$",
+    "$21+36=5a$",
+    "$5a-21=36$"
+   ],
+   "no": 9
+  },
+  {
+   "tipe": "pg",
+   "teks": "Irfan mempunyai kelereng sebanyak $x$ buah, sedangkan Andi mempunyai kelereng sebanyak 3 kurangnya dari kelereng Irfan. Jika banyak kelereng Andi adalah 18 buah, kalimat matematika yang sesuai adalah ….",
+   "opsi": [
+    "$x+3=18$",
+    "$x-3=18$",
+    "$x+18=3$",
+    "$x=18-3$"
+   ],
+   "no": 10
+  },
+  {
+   "tipe": "pgk",
+   "teks": "Berikut pangkat dengan sifat perkalian dan pembagian bilangan berpangkat yang tepat adalah ….",
+   "opsi": [
+    "$2^{3}\\times2^{2}\\times2^{6}=3^{3\\times2\\times6}=2^{36}$",
+    "$2^{3}\\times2^{2}\\times2^{6}=3^{3+2+6}=2^{11}$",
+    "$2^{3}:2^{2}:2^{6}=3^{3-2-6}=2^{-5}$",
+    "$2^{3}:2^{2}:2^{6}=3^{3-2-6}=2^{1}$"
+   ],
+   "no": 11
+  },
+  {
+   "tipe": "pgk",
+   "teks": "Perkalian berulang yang dapat diubah menjadi bilangan berpangkat 3 adalah ….",
+   "opsi": [
+    "$2\\times2\\times2$",
+    "$3\\times3\\times3\\times3$",
+    "$4\\times3$",
+    "$5\\times5\\times5$"
+   ],
+   "no": 12
+  },
+  {
+   "tipe": "pgk",
+   "teks": "Penulisan bilangan biasa menjadi bentuk baku yang tepat adalah ….",
+   "opsi": [
+    "$3{,}238\\times10^{-4}=0{,}00003238$",
+    "$3{,}015\\times10^{-5}=0{,}00003015$",
+    "$2{,}866\\times10^{4}=286.600$",
+    "$2{,}409\\times10^{5}=240.900$"
+   ],
+   "no": 13
+  },
+  {
+   "tipe": "pgk",
+   "teks": "Berdasarkan teorema Pythagoras dan gambar tersebut, hubungan panjang sisi segitiga berikut yang <b><i>tidak tepat</i></b> adalah ….",
+   "opsi": [
+    "$AB^{2}=BC^{2}+AC^{2}$",
+    "$AC^{2}=BC^{2}-AB^{2}$",
+    "$BC^{2}=AC^{2}+AB^{2}$",
+    "$BC^{2}=AC^{2}-AB^{2}$"
+   ],
+   "pre": "Perhatikan gambar berikut!",
+   "gambar": "img/image3.png",
+   "no": 14
+  },
+  {
+   "tipe": "pgk",
+   "teks": "Berikut yang <b><i>bukan</i></b> termasuk kalimat terbuka adalah ….",
+   "opsi": [
+    "$3p-1<10$",
+    "Presiden pertama Republik Indonesia adalah Ir. Soekarno",
+    "$x$ adalah bilangan bulat yang kurang dari $0$",
+    "semua bilangan prima adalah bilangan ganjil"
+   ],
+   "no": 15
+  },
+  {
+   "tipe": "bs",
+   "teks": "Diketahui suatu bilangan berpangkat $\\left(2^{3}\\times3^{2}\\right)^{3}$.",
+   "pernyataan": "Hasil dari operasi bilangan berpangkat tersebut adalah $5.182$.",
+   "no": 16
+  },
+  {
+   "tipe": "bs",
+   "teks": "Diketahui kecepatan cahaya adalah $3\\times10^{8}\\ \\text{m/detik}$. Panjang lintasan cahaya sama dengan kecepatan cahaya dikali waktu.",
+   "pernyataan": "Panjang lintasan cahaya dalam waktu $12$ jam adalah $1{,}296\\times10^{10}\\ \\text{km}$.",
+   "no": 17
+  },
+  {
+   "tipe": "bs",
+   "teks": "Diketahui gambar segitiga sebagai berikut!",
+   "pernyataan": "Panjang $BC$ sama dengan $12\\sqrt{2}\\ \\text{cm}$.",
+   "gambar": "img/image4.png",
+   "no": 18
+  },
+  {
+   "tipe": "bs",
+   "teks": "Kak Ando dan Diki ingin pergi ke toko buku yang berada di arah utara dengan jarak $12\\ \\text{m}$ dari tempat mereka berada sekarang. Namun, sebelumnya Kak Ando berjalan ke arah timur sejauh $5\\ \\text{m}$ untuk mengambil uang terlebih dahulu. Sedangkan Diki berjalan ke arah barat sejauh $9\\ \\text{m}$ untuk membeli minum.",
+   "pernyataan": "Dari tempat terakhir, jika Kak Ando dan Diki mulai berjalan ke toko buku pada waktu dan dengan kecepatan yang sama, Kak Ando akan sampai lebih dulu daripada Diki",
+   "no": 19
+  },
+  {
+   "tipe": "bs",
+   "teks": "Diketahui suatu persegi panjang mempunyai diagonal dengan panjang $2(x+3)\\ \\text{cm}$ dan $(3x-4)\\ \\text{cm}$.",
+   "pernyataan": "Panjang diagonal persegi panjang tersebut adalah $24\\ \\text{cm}$",
+   "no": 20
+  },
+  {
+   "tipe": "isi",
+   "teks": "Bentuk pangkat positif dari $2a^{-5}bc^{7}$ adalah ….",
+   "no": 21
+  },
+  {
+   "tipe": "isi",
+   "teks": "Bentuk sederhana dari bentuk akar $\\sqrt{252}$ adalah ….",
+   "no": 22
+  },
+  {
+   "tipe": "isi",
+   "teks": "Bentuk baku dari bilangan $0{,}00002534$ adalah ….",
+   "no": 23
+  },
+  {
+   "tipe": "isi",
+   "teks": "Sebuah segitiga siku-siku memiliki ukuran alas $9\\ \\text{cm}$ dan tinggi $40\\ \\text{cm}$. Panjang sisi miring segitiga tersebut adalah ….",
+   "no": 24
+  },
+  {
+   "tipe": "isi",
+   "teks": "Suatu bilangan dikalikan $2$ kemudian dikurangi $8$ hasilnya $10$. Bilangan tersebut adalah ….",
+   "no": 25
+  },
+  {
+   "tipe": "ura",
+   "teks": "Bagaimanakan bentuk sederhana dari bilangan berpangkat $\\dfrac{2\\sqrt{3}}{2\\sqrt{5}-3\\sqrt{2}}$ !",
+   "no": 26
+  },
+  {
+   "tipe": "ura",
+   "teks": "Perhatikan gambar berikut!",
+   "gambar": "img/image5.png",
+   "teks2": "Seorang pengamat berada di atas mercusuar yang tingginya $12\\ \\text{m}$. Dia melihat kapal $A$ dan kapal $B$ berturut-turut $20\\ \\text{m}$ dan $13\\ \\text{m}$. Posisi kapal $A$, kapal $B$, dan kaki mercusuar terletak segaris. Berapakah jarak kapal $A$ dan kapal $B$?",
+   "no": 27
+  },
+  {
+   "tipe": "ura",
+   "teks": "Gandi menyisihkan uang jajannya hari Senin sampai Sabtu dengan jumlah yang sama setiap harinya. Pada hari Kamis, Gandi mengambil uang yang telah dia sisihkan sebesar $\\text{Rp}10.000{,}00$. Pada hari Minggu, dia menghitung uang yang telah terkumpul sejak hari Senin, ada sebesar $\\text{Rp}14.000{,}00$. Berapa besar uang yang disisihkan Gandi per hari?",
+   "no": 28
+  }
+ ]
+}
