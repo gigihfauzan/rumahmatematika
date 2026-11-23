@@ -1,5 +1,5 @@
 /* ============================================================================
-   GAYA KOMPONEN UTAMA WEBSITE BAHAN AJAR MATEMATIKA
+   GAYA KOMPONEN UTAMA WEBSITE BAHAN AJAR MATEMATIKA (TAHAP 2)
    Mengatur tata letak halaman siswa (index.html) dan halaman admin (admin.html).
    ============================================================================ */
 
@@ -131,7 +131,7 @@
   border: 1px solid var(--warna-garis);
   border-radius: var(--radius-kartu);
   padding: 32px 28px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   box-shadow: var(--bayangan-kartu);
 }
 
@@ -146,6 +146,57 @@
   color: var(--warna-teks-redup);
   max-width: 720px;
   margin: 0;
+}
+
+/* --- PENGUMUMAN AKTIF DI BERANDA --- */
+.daftar-pengumuman {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.kartu-pengumuman {
+  background-color: var(--warna-kartu);
+  border: 1px solid var(--warna-garis);
+  border-left: 5px solid var(--warna-aksen);
+  border-radius: var(--radius-kartu);
+  padding: 18px 20px;
+  box-shadow: var(--bayangan-kartu);
+}
+
+.kepala-pengumuman {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.kepala-pengumuman h3 {
+  font-size: 1.08rem;
+  margin: 0;
+  color: var(--warna-teks);
+}
+
+.kartu-pengumuman p {
+  margin: 0;
+  color: var(--warna-teks-redup);
+  white-space: pre-wrap;
+}
+
+/* --- BILAH PENCARIAN & PENYARING MATERI --- */
+.bilah-cari-filter {
+  background-color: var(--warna-kartu);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-kartu);
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--bayangan-kartu);
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
 }
 
 /* --- KARTU UMUM, KARTU KELAS, & KARTU BAB --- */
@@ -234,6 +285,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.grup-lencana-bab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .ikon-bab {
@@ -345,6 +403,90 @@
   margin-bottom: 14px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--warna-garis);
+}
+
+/* --- DAFTAR CENTANG KEMAJUAN BELAJAR SISWA --- */
+.kotak-kemajuan {
+  background-color: var(--warna-kartu);
+  border: 1px solid var(--warna-garis);
+  border-radius: var(--radius-kartu);
+  padding: 20px 24px;
+  margin-top: 28px;
+  box-shadow: var(--bayangan-kartu);
+}
+
+.kepala-kemajuan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.kepala-kemajuan h3 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.bilah-progres {
+  width: 100%;
+  height: 10px;
+  background-color: var(--warna-utama-lembut);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.isi-progres {
+  height: 100%;
+  background-color: var(--warna-sukses);
+  transition: width 0.25s ease;
+}
+
+.daftar-centang-kemajuan {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-centang {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-kecil);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.item-centang:hover {
+  background-color: var(--warna-latar);
+}
+
+.item-centang input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--warna-sukses);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.item-centang.selesai span {
+  text-decoration: line-through;
+  color: var(--warna-teks-redup);
+}
+
+/* --- TOMBOL BAB SEBELUMNYA / BERIKUTNYA --- */
+.navigasi-antar-bab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--warna-garis);
 }
 
 /* --- PENYEMATAN MEDIA (IFRAME & LAYAR PENUH) --- */
@@ -607,6 +749,10 @@
 
   .hero-beranda h1 {
     font-size: 1.4rem;
+  }
+
+  .bilah-cari-filter {
+    grid-template-columns: 1fr;
   }
 
   .wadah-semat.tinggi-dokumen {

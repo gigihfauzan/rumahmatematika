@@ -1,7 +1,8 @@
 // ============================================================================
-// LOGIKA HALAMAN UMUM SISWA (APP.JS — TAHAP 1)
-// Mengatur tema, header, navigasi (#/), beranda, daftar bab, halaman bab
-// bertab, serta halaman Tentang berdasarkan data dari Google Sheet.
+// LOGIKA HALAMAN UMUM SISWA (APP.JS — TAHAP 2)
+// Mengatur tema, header, navigasi (#/), beranda + pengumuman, pencarian &
+// filter materi, label Baru, halaman bab bertab, daftar centang kemajuan,
+// tombol bab sebelumnya/berikutnya, serta halaman Tentang.
 // ============================================================================
 
 (function () {
@@ -10,8 +11,12 @@
     pengaturan: {},
     kelas: [],
     bab: [],
-    konten: []
+    konten: [],
+    pengumuman: []
   };
+
+  // Kunci penyimpanan kemajuan belajar di browser siswa (tanpa login)
+  const KUNCI_KEMAJUAN = "wbm_kemajuan_belajar";
 
   // Urutan dan label tab pembelajaran pada setiap bab
   const DAFTAR_TAB_BAB = [
@@ -54,7 +59,8 @@
         pengaturan: data.pengaturan || {},
         kelas: Array.isArray(data.kelas) ? data.kelas : [],
         bab: Array.isArray(data.bab) ? data.bab : [],
-        konten: Array.isArray(data.konten) ? data.konten : []
+        konten: Array.isArray(data.konten) ? data.konten : [],
+        pengumuman: Array.isArray(data.pengumuman) ? data.pengumuman : []
       };
 
       terapkanTemaDanIdentitas();
@@ -63,9 +69,7 @@
     } catch (err) {
       wadahUtama.innerHTML = "";
       const kotakGalat = buatElemen("div", "kotak-status galat");
-      kotakGalat.appendChild(
-        buatTeks("h2", "", "Halaman belum dapat dimuat")
-      );
+      kotakGalat.appendChild(buatTeks("h2", "", "Halaman belum dapat dimuat"));
       kotakGalat.appendChild(
         buatTeks(
           "p",
@@ -97,7 +101,6 @@
     const p = stateData.pengaturan;
     const akar = document.documentElement;
 
-    // 1. Terapkan tema bawaan (samudra, hutan, senja, netral)
     const temaValid = ["samudra", "hutan", "senja", "netral"];
     const temaDipilih = String(p.tema || "samudra").trim().toLowerCase();
     akar.setAttribute(
@@ -105,7 +108,6 @@
       temaValid.indexOf(temaDipilih) !== -1 ? temaDipilih : "samudra"
     );
 
-    // 2. Timpa warna utama atau aksen jika diisi kode warna hex yang sah
     if (kodeWarnaHexSah(p.warna_utama)) {
       akar.style.setProperty("--warna-utama", p.warna_utama.trim());
       akar.style.setProperty("--warna-utama-gelap", p.warna_utama.trim());
@@ -114,7 +116,6 @@
       akar.style.setProperty("--warna-aksen", p.warna_aksen.trim());
     }
 
-    // 3. Terapkan pilihan huruf judul dan isi
     if (p.font_judul && PETA_FONT[p.font_judul]) {
       akar.style.setProperty("--font-judul", PETA_FONT[p.font_judul]);
     }
@@ -122,7 +123,6 @@
       akar.style.setProperty("--font-isi", PETA_FONT[p.font_isi]);
     }
 
-    // 4. Favicon tab browser
     if (p.favicon_url && /^https:\/\//i.test(p.favicon_url.trim())) {
       const linkFavicon = document.getElementById("favicon-situs");
       if (linkFavicon) {
@@ -146,7 +146,6 @@
 
     const dalam = buatElemen("div", "header-dalam");
 
-    // Bagian kiri: logo + judul situs + slogan
     const merek = buatElemen("a", "merek-situs");
     merek.href = "#/";
 
@@ -169,7 +168,6 @@
     merek.appendChild(wadahJudul);
     dalam.appendChild(merek);
 
-    // Bagian kanan: menu navigasi utama (tanpa tautan admin)
     const daftarMenuAktif = String(
       p.menu_aktif || "beranda,materi,diskusi,tentang"
     )
@@ -190,7 +188,10 @@
 
     semuaMenu.forEach(function (item) {
       if (daftarMenuAktif.indexOf(item.kode) === -1) return;
-      if (item.kode === "diskusi" && String(p.diskusi_aktif || "ya").toLowerCase() === "tidak") {
+      if (
+        item.kode === "diskusi" &&
+        String(p.diskusi_aktif || "ya").toLowerCase() === "tidak"
+      ) {
         return;
       }
       const tautan = buatTeks(
@@ -235,7 +236,6 @@
     const bagian = hash.split("/").filter(Boolean);
     const namaSitus = stateData.pengaturan.nama_situs || "Ruang Matematika";
 
-    // 1. Halaman Beranda (#/)
     if (bagian.length === 0) {
       document.title = namaSitus;
       renderHeader("beranda");
@@ -243,7 +243,6 @@
       return;
     }
 
-    // 2. Halaman Daftar Bab Semua Kelas (#/materi)
     if (bagian[0] === "materi") {
       document.title = "Materi — " + namaSitus;
       renderHeader("materi");
@@ -251,7 +250,6 @@
       return;
     }
 
-    // 3. Halaman Daftar Bab Kelas Tertentu (#/kelas/<id>)
     if (bagian[0] === "kelas" && bagian[1]) {
       const idKelas = decodeURIComponent(bagian[1]);
       const kelasObj = cariKelas(idKelas);
@@ -261,7 +259,6 @@
       return;
     }
 
-    // 4. Halaman Detail Bab Bertab (#/bab/<id>)
     if (bagian[0] === "bab" && bagian[1]) {
       const idBab = decodeURIComponent(bagian[1]);
       const babObj = stateData.bab.find(function (b) {
@@ -273,7 +270,6 @@
       return;
     }
 
-    // 5. Halaman Diskusi (persiapan Tahap 3) (#/diskusi)
     if (bagian[0] === "diskusi") {
       document.title = "Diskusi — " + namaSitus;
       renderHeader("diskusi");
@@ -281,7 +277,6 @@
       return;
     }
 
-    // 6. Halaman Tentang (#/tentang)
     if (bagian[0] === "tentang") {
       document.title = "Tentang — " + namaSitus;
       renderHeader("tentang");
@@ -289,12 +284,11 @@
       return;
     }
 
-    // Jika rute tidak dikenal, kembali ke Beranda
     window.location.hash = "#/";
   }
 
   // ==========================================================================
-  // HALAMAN 1: BERANDA
+  // HALAMAN 1: BERANDA (SAPAAN, PENGUMUMAN AKTIF, PILIH KELAS, BAB TERBARU)
   // ==========================================================================
 
   function renderBeranda() {
@@ -302,7 +296,7 @@
     const utama = document.getElementById("konten-utama");
     utama.innerHTML = "";
 
-    // Kotak sapaan hangat
+    // 1. Kotak sapaan hangat
     const hero = buatElemen("section", "hero-beranda");
     hero.appendChild(
       buatTeks("h1", "", p.nama_situs || "Selamat Datang di Ruang Matematika")
@@ -317,7 +311,30 @@
     );
     utama.appendChild(hero);
 
-    // Bagian Pilih Kelas
+    // 2. Pengumuman aktif (jika ada di Google Sheet)
+    if (stateData.pengumuman.length > 0) {
+      const judulPgm = buatElemen("div", "judul-bagian");
+      judulPgm.appendChild(buatTeks("h2", "", "📢 Pengumuman"));
+      utama.appendChild(judulPgm);
+
+      const wadahPgm = buatElemen("div", "daftar-pengumuman");
+      stateData.pengumuman.forEach(function (item) {
+        const kartu = buatElemen("article", "kartu-pengumuman");
+        const kepala = buatElemen("div", "kepala-pengumuman");
+        kepala.appendChild(buatTeks("h3", "", item.judul));
+        if (item.aktif_sampai) {
+          kepala.appendChild(
+            buatTeks("span", "lencana lencana-baru", "Berlaku s.d. " + item.aktif_sampai)
+          );
+        }
+        kartu.appendChild(kepala);
+        kartu.appendChild(buatTeks("p", "", item.isi));
+        wadahPgm.appendChild(kartu);
+      });
+      utama.appendChild(wadahPgm);
+    }
+
+    // 3. Bagian Pilih Kelas
     const judulKelas = buatElemen("div", "judul-bagian");
     judulKelas.appendChild(buatTeks("h2", "", "Pilih Kelas"));
     utama.appendChild(judulKelas);
@@ -354,11 +371,15 @@
       utama.appendChild(gridKelas);
     }
 
-    // Bagian Bab Terbaru (jika sudah ada bab berstatus terbit)
+    // 4. Bagian Bab Tersedia
     if (stateData.bab.length > 0) {
       const judulTerbaru = buatElemen("div", "judul-bagian");
       judulTerbaru.appendChild(buatTeks("h2", "", "Bab Materi Tersedia"));
-      const tautanSemua = buatTeks("a", "tombol tombol-sekunder tombol-kecil", "Lihat semua bab");
+      const tautanSemua = buatTeks(
+        "a",
+        "tombol tombol-sekunder tombol-kecil",
+        "Cari & lihat semua bab"
+      );
       tautanSemua.href = "#/materi";
       judulTerbaru.appendChild(tautanSemua);
       utama.appendChild(judulTerbaru);
@@ -372,7 +393,7 @@
   }
 
   // ==========================================================================
-  // HALAMAN 2: DAFTAR MATERI / BAB PER KELAS
+  // HALAMAN 2: DAFTAR MATERI / BAB PER KELAS + PENCARIAN & FILTER
   // ==========================================================================
 
   function renderDaftarMateri(idKelasFilter) {
@@ -404,7 +425,7 @@
     );
     utama.appendChild(kepala);
 
-    // Tombol pemilih kelas agar siswa mudah berpindah kelas
+    // Tombol pemilih kelas
     const barKelas = buatElemen("div", "daftar-tab");
     const tombolSemua = buatTeks(
       "a",
@@ -427,34 +448,110 @@
     });
     utama.appendChild(barKelas);
 
-    // Saring bab sesuai kelas
-    const daftarBabTampil = idKelasFilter
-      ? stateData.bab.filter(function (b) {
-          return b.id_kelas === idKelasFilter;
-        })
-      : stateData.bab;
+    // Bilah pencarian kata kunci dan filter jenis media
+    const bilahCari = buatElemen("div", "bilah-cari-filter");
 
-    if (daftarBabTampil.length === 0) {
-      const kotakKosong = buatElemen("div", "kotak-status");
-      kotakKosong.appendChild(
-        buatTeks("h3", "", "Belum ada bab yang diterbitkan")
-      );
-      kotakKosong.appendChild(
-        buatTeks(
-          "p",
-          "",
-          "Materi untuk pilihan kelas ini sedang disiapkan. Silakan periksa kembali nanti atau pilih kelas lain."
-        )
-      );
-      utama.appendChild(kotakKosong);
-      return;
+    const inputCari = buatElemen("input", "input-form");
+    inputCari.type = "search";
+    inputCari.placeholder = "Cari judul bab atau topik materi (mis. pecahan, aljabar, bangun ruang)...";
+    inputCari.setAttribute("aria-label", "Cari judul bab atau topik materi");
+    bilahCari.appendChild(inputCari);
+
+    const selectJenis = buatElemen("select", "select-form");
+    selectJenis.setAttribute("aria-label", "Saring berdasarkan jenis media");
+    [
+      { nilai: "", label: "Semua Jenis Media" },
+      { nilai: "youtube", label: "Video YouTube" },
+      { nilai: "dokumen_drive", label: "PDF / Dokumen / Slide" },
+      { nilai: "kuis_form", label: "Kuis Google Form" },
+      { nilai: "geogebra", label: "Simulasi GeoGebra" },
+      { nilai: "media_web", label: "Media Web Interaktif" },
+      { nilai: "teks", label: "Teks & Rumus" }
+    ].forEach(function (op) {
+      const opt = document.createElement("option");
+      opt.value = op.nilai;
+      opt.textContent = op.label;
+      selectJenis.appendChild(opt);
+    });
+    bilahCari.appendChild(selectJenis);
+
+    utama.appendChild(bilahCari);
+
+    // Wadah daftar hasil pencarian / penyaringan
+    const wadahHasil = buatElemen("div");
+    utama.appendChild(wadahHasil);
+
+    function perbaruiDaftarBab() {
+      wadahHasil.innerHTML = "";
+      const kataKunci = inputCari.value.trim().toLowerCase();
+      const filterMedia = selectJenis.value;
+
+      const babTersaring = stateData.bab.filter(function (bab) {
+        if (idKelasFilter && bab.id_kelas !== idKelasFilter) return false;
+
+        const kontenMilikBab = stateData.konten.filter(function (c) {
+          return c.id_bab === bab.id;
+        });
+
+        // Cek kesesuaian filter jenis media
+        if (filterMedia) {
+          const cocokMedia = kontenMilikBab.some(function (c) {
+            if (filterMedia === "dokumen_drive") {
+              return ["pdf", "dokumen", "slide", "gambar", "drive"].indexOf(c.jenis) !== -1;
+            }
+            return c.jenis === filterMedia;
+          });
+          if (!cocokMedia) return false;
+        }
+
+        // Cek kesesuaian kata kunci pencarian pada judul/deskripsi bab atau judul konten
+        if (kataKunci) {
+          const cocokJudulBab = (bab.judul || "").toLowerCase().indexOf(kataKunci) !== -1;
+          const cocokDeskBab = (bab.deskripsi || "").toLowerCase().indexOf(kataKunci) !== -1;
+          const cocokKonten = kontenMilikBab.some(function (c) {
+            return (c.judul || "").toLowerCase().indexOf(kataKunci) !== -1;
+          });
+          if (!cocokJudulBab && !cocokDeskBab && !cocokKonten) return false;
+        }
+
+        return true;
+      });
+
+      if (babTersaring.length === 0) {
+        const kotakKosong = buatElemen("div", "kotak-status");
+        kotakKosong.appendChild(
+          buatTeks(
+            "h3",
+            "",
+            kataKunci || filterMedia
+              ? "Tidak ditemukan bab yang sesuai"
+              : "Belum ada bab yang diterbitkan"
+          )
+        );
+        kotakKosong.appendChild(
+          buatTeks(
+            "p",
+            "",
+            kataKunci || filterMedia
+              ? "Coba ganti kata kunci pencarian atau pilih 'Semua Jenis Media'."
+              : "Materi untuk pilihan kelas ini sedang disiapkan oleh guru."
+          )
+        );
+        wadahHasil.appendChild(kotakKosong);
+        return;
+      }
+
+      const gridBab = buatElemen("div", "grid-bab");
+      babTersaring.forEach(function (bab) {
+        gridBab.appendChild(buatKartuBab(bab));
+      });
+      wadahHasil.appendChild(gridBab);
     }
 
-    const gridBab = buatElemen("div", "grid-bab");
-    daftarBabTampil.forEach(function (bab) {
-      gridBab.appendChild(buatKartuBab(bab));
-    });
-    utama.appendChild(gridBab);
+    inputCari.addEventListener("input", perbaruiDaftarBab);
+    selectJenis.addEventListener("change", perbaruiDaftarBab);
+
+    perbaruiDaftarBab();
   }
 
   function buatKartuBab(bab) {
@@ -464,9 +561,15 @@
 
     const kepala = buatElemen("div", "kepala-kartu-bab");
     kepala.appendChild(buatTeks("span", "ikon-bab", bab.ikon || "📘"));
-    if (kelasObj) {
-      kepala.appendChild(buatTeks("span", "lencana", kelasObj.nama));
+
+    const grupLencana = buatElemen("div", "grup-lencana-bab");
+    if (adalahBabBaru(bab.diubah_pada)) {
+      grupLencana.appendChild(buatTeks("span", "lencana lencana-baru", "Baru"));
     }
+    if (kelasObj) {
+      grupLencana.appendChild(buatTeks("span", "lencana", kelasObj.nama));
+    }
+    kepala.appendChild(grupLencana);
     kartu.appendChild(kepala);
 
     kartu.appendChild(buatTeks("h3", "", bab.judul));
@@ -488,8 +591,18 @@
     return kartu;
   }
 
+  // Mengecek apakah bab diterbitkan/diperbarui dalam 14 hari terakhir
+  function adalahBabBaru(waktuIso) {
+    if (!waktuIso) return false;
+    const tanggal = new Date(waktuIso);
+    if (isNaN(tanggal.getTime())) return false;
+    const selisihMs = Date.now() - tanggal.getTime();
+    const empatBelasHariMs = 14 * 24 * 60 * 60 * 1000;
+    return selisihMs >= 0 && selisihMs <= empatBelasHariMs;
+  }
+
   // ==========================================================================
-  // HALAMAN 3: DETAIL BAB BERTAB (MULAI, PAHAMI, TONTON, COBA, UJI)
+  // HALAMAN 3: DETAIL BAB BERTAB + DAFTAR CENTANG KEMAJUAN + NAVIGASI BAB
   // ==========================================================================
 
   function renderHalamanBab(idBab) {
@@ -534,11 +647,18 @@
 
     // Kepala bab
     const kepalaBab = buatElemen("section", "kepala-bab");
+    const barisLencana = buatElemen("div", "grup-lencana-bab");
+    barisLencana.style.marginBottom = "10px";
     if (kelasObj) {
-      const lencana = buatTeks("span", "lencana", kelasObj.nama);
-      lencana.style.marginBottom = "10px";
-      kepalaBab.appendChild(lencana);
+      barisLencana.appendChild(buatTeks("span", "lencana", kelasObj.nama));
     }
+    if (adalahBabBaru(bab.diubah_pada)) {
+      barisLencana.appendChild(buatTeks("span", "lencana lencana-baru", "Baru"));
+    }
+    if (barisLencana.childNodes.length > 0) {
+      kepalaBab.appendChild(barisLencana);
+    }
+
     kepalaBab.appendChild(
       buatTeks("h1", "", (bab.ikon ? bab.ikon + " " : "") + bab.judul)
     );
@@ -573,6 +693,7 @@
       const belumAdaIsi = buatElemen("div", "kotak-status");
       belumAdaIsi.textContent = "Isi pembelajaran pada bab ini sedang disiapkan oleh guru.";
       utama.appendChild(belumAdaIsi);
+      renderNavigasiAntarBab(utama, bab);
       return;
     }
 
@@ -582,7 +703,6 @@
     const wadahPanel = buatElemen("div", "panel-konten");
 
     function bukaTab(kodeTabAktif) {
-      // Perbarui status tombol tab
       const semuaTombol = bilahTab.querySelectorAll(".tombol-tab");
       semuaTombol.forEach(function (btn) {
         const aktif = btn.getAttribute("data-tab") === kodeTabAktif;
@@ -590,7 +710,6 @@
         btn.setAttribute("aria-selected", aktif ? "true" : "false");
       });
 
-      // Render HANYA isi tab yang sedang dibuka (hemat kuota dan ringan)
       wadahPanel.innerHTML = "";
 
       if (kodeTabAktif === "mulai") {
@@ -641,6 +760,156 @@
 
     // Buka tab pertama yang tersedia secara otomatis
     bukaTab(tabTersedia[0].kode);
+
+    // Kotak daftar centang kemajuan belajar siswa (disimpan di browser siswa)
+    renderDaftarCentangKemajuan(utama, bab, kontenBab);
+
+    // Tombol Bab Sebelumnya / Berikutnya
+    renderNavigasiAntarBab(utama, bab);
+  }
+
+  function renderDaftarCentangKemajuan(wadah, bab, kontenBab) {
+    const daftarTarget = [];
+
+    if (bab.tujuan_belajar || bab.pertanyaan_pemantik) {
+      daftarTarget.push({
+        kunci: "mulai-" + bab.id,
+        label: "[Mulai] Membaca tujuan pembelajaran & pertanyaan pemantik"
+      });
+    }
+
+    kontenBab.forEach(function (item) {
+      const labelTab = item.tab ? item.tab.charAt(0).toUpperCase() + item.tab.slice(1) : "Materi";
+      daftarTarget.push({
+        kunci: "konten-" + item.id,
+        label: "[" + labelTab + "] " + item.judul
+      });
+    });
+
+    if (daftarTarget.length === 0) return;
+
+    const kotak = buatElemen("section", "kotak-kemajuan");
+    const kepala = buatElemen("div", "kepala-kemajuan");
+    kepala.appendChild(buatTeks("h3", "", "✅ Catatan Kemajuan Belajarku"));
+    const teksPersen = buatTeks("span", "lencana", "0% selesai");
+    kepala.appendChild(teksPersen);
+    kotak.appendChild(kepala);
+
+    const bilahProgres = buatElemen("div", "bilah-progres");
+    const isiProgres = buatElemen("div", "isi-progres");
+    isiProgres.style.width = "0%";
+    bilahProgres.appendChild(isiProgres);
+    kotak.appendChild(bilahProgres);
+
+    const daftarCentang = buatElemen("div", "daftar-centang-kemajuan");
+    const dataTersimpan = bacaKemajuanLokal();
+
+    function perbaruiTampilanProgres() {
+      const terkini = bacaKemajuanLokal();
+      let selesai = 0;
+      daftarTarget.forEach(function (t) {
+        if (terkini[t.kunci]) selesai++;
+      });
+      const persen = Math.round((selesai / daftarTarget.length) * 100);
+      isiProgres.style.width = persen + "%";
+      teksPersen.textContent =
+        selesai + " dari " + daftarTarget.length + " selesai (" + persen + "%)";
+    }
+
+    daftarTarget.forEach(function (target) {
+      const sudahSelesai = Boolean(dataTersimpan[target.kunci]);
+      const labelItem = buatElemen("label", "item-centang" + (sudahSelesai ? " selesai" : ""));
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = sudahSelesai;
+      checkbox.addEventListener("change", function () {
+        labelItem.classList.toggle("selesai", checkbox.checked);
+        simpanKemajuanLokal(target.kunci, checkbox.checked);
+        perbaruiTampilanProgres();
+      });
+
+      labelItem.appendChild(checkbox);
+      labelItem.appendChild(buatTeks("span", "", target.label));
+      daftarCentang.appendChild(labelItem);
+    });
+
+    kotak.appendChild(daftarCentang);
+    const catatanLokal = buatTeks(
+      "span",
+      "bantuan-form",
+      "Catatan centang ini tersimpan otomatis di perangkatmu untuk membantumu mengingat bagian yang sudah dipelajari."
+    );
+    catatanLokal.style.marginTop = "10px";
+    kotak.appendChild(catatanLokal);
+
+    wadah.appendChild(kotak);
+    perbaruiTampilanProgres();
+  }
+
+  function renderNavigasiAntarBab(wadah, babSekarang) {
+    const babSekelas = stateData.bab.filter(function (b) {
+      return b.id_kelas === babSekarang.id_kelas;
+    });
+
+    const indeks = babSekelas.findIndex(function (b) {
+      return b.id === babSekarang.id;
+    });
+
+    if (indeks === -1 || babSekelas.length <= 1) return;
+
+    const babSebelumnya = indeks > 0 ? babSekelas[indeks - 1] : null;
+    const babBerikutnya = indeks < babSekelas.length - 1 ? babSekelas[indeks + 1] : null;
+
+    const nav = buatElemen("nav", "navigasi-antar-bab");
+    nav.setAttribute("aria-label", "Navigasi antarbab");
+
+    if (babSebelumnya) {
+      const btnPrev = buatTeks(
+        "a",
+        "tombol tombol-sekunder",
+        "← Bab sebelumnya: " + babSebelumnya.judul
+      );
+      btnPrev.href = "#/bab/" + encodeURIComponent(babSebelumnya.id);
+      nav.appendChild(btnPrev);
+    } else {
+      nav.appendChild(document.createElement("span"));
+    }
+
+    if (babBerikutnya) {
+      const btnNext = buatTeks(
+        "a",
+        "tombol tombol-utama",
+        "Bab berikutnya: " + babBerikutnya.judul + " →"
+      );
+      btnNext.href = "#/bab/" + encodeURIComponent(babBerikutnya.id);
+      nav.appendChild(btnNext);
+    }
+
+    wadah.appendChild(nav);
+  }
+
+  function bacaKemajuanLokal() {
+    try {
+      const mentah = localStorage.getItem(KUNCI_KEMAJUAN);
+      return mentah ? JSON.parse(mentah) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function simpanKemajuanLokal(kunci, nilai) {
+    try {
+      const data = bacaKemajuanLokal();
+      if (nilai) {
+        data[kunci] = true;
+      } else {
+        delete data[kunci];
+      }
+      localStorage.setItem(KUNCI_KEMAJUAN, JSON.stringify(data));
+    } catch (e) {
+      // Abaikan jika penyimpanan lokal dibatasi browser
+    }
   }
 
   // ==========================================================================
@@ -681,4 +950,50 @@
     const daftarInfo = [
       { label: "Guru Pengampu", nilai: p.nama_guru },
       { label: "Sekolah", nilai: p.nama_sekolah },
-      { label
+      { label: "Alamat Sekolah", nilai: p.alamat_sekolah },
+      { label: "Tahun Ajaran", nilai: p.tahun_ajaran },
+      { label: "Kontak", nilai: p.kontak }
+    ];
+
+    let adaInfo = false;
+    daftarInfo.forEach(function (baris) {
+      if (!baris.nilai) return;
+      adaInfo = true;
+      const pBaris = buatElemen("p");
+      const tebal = buatTeks("strong", "", baris.label + ": ");
+      pBaris.appendChild(tebal);
+      pBaris.appendChild(document.createTextNode(baris.nilai));
+      kartu.appendChild(pBaris);
+    });
+
+    if (!adaInfo) {
+      kartu.appendChild(
+        buatTeks("p", "", "Informasi profil guru dan sekolah dapat diisi melalui halaman admin.")
+      );
+    }
+
+    utama.appendChild(kartu);
+  }
+
+  // ==========================================================================
+  // FUNGSI BANTUAN DOM AMAN
+  // ==========================================================================
+
+  function cariKelas(idKelas) {
+    return stateData.kelas.find(function (k) {
+      return k.id === idKelas;
+    });
+  }
+
+  function buatElemen(tag, namaKelas) {
+    const el = document.createElement(tag);
+    if (namaKelas) el.className = namaKelas;
+    return el;
+  }
+
+  function buatTeks(tag, namaKelas, teks) {
+    const el = buatElemen(tag, namaKelas);
+    el.textContent = teks || "";
+    return el;
+  }
+})();

@@ -3,53 +3,489 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Memuat... — Bahan Ajar Matematika</title>
-  <meta name="description" content="Media dan bahan ajar matematika SMP interaktif.">
+  <title>Simulasi Garis Bilangan — Bilangan Bulat</title>
+  <!-- Memuat variabel warna & huruf dari tema utama website secara relatif -->
+  <link rel="stylesheet" href="../../assets/css/tema.css">
+  <style>
+    /* Cadangan variabel warna apabila berkas dibuka terpisah */
+    :root {
+      --warna-utama: #0f6cbd;
+      --warna-utama-lembut: #e8f3fc;
+      --warna-aksen: #f59e0b;
+      --warna-latar: #f7fafc;
+      --warna-kartu: #ffffff;
+      --warna-teks: #1e293b;
+      --warna-teks-redup: #475569;
+      --warna-garis: #dbe4ee;
+      --warna-sukses: #15803d;
+      --warna-sukses-lembut: #dcfce7;
+      --warna-bahaya: #b91c1c;
+      --warna-bahaya-lembut: #fee2e2;
+    }
 
-  <!-- Ikon tab browser (otomatis diisi dari pengaturan di Google Sheet) -->
-  <link id="favicon-situs" rel="icon" href="data:,">
+    body {
+      margin: 0;
+      padding: 18px;
+      background-color: var(--warna-latar);
+      color: var(--warna-teks);
+      font-family: var(--font-isi, system-ui, -apple-system, sans-serif);
+    }
 
-  <!-- Lembar gaya tema dan tata letak komponen -->
-  <link rel="stylesheet" href="assets/css/tema.css">
-  <link rel="stylesheet" href="assets/css/app.css">
+    .wadah-simulasi {
+      max-width: 820px;
+      margin: 0 auto;
+      background-color: var(--warna-kartu);
+      border: 1px solid var(--warna-garis);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    }
 
-  <!-- Pustaka KaTeX dari CDN untuk menampilkan rumus matematika dengan tajam -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    .judul-simulasi {
+      font-size: 1.3rem;
+      margin: 0 0 6px;
+      color: var(--warna-utama);
+    }
+
+    .subjudul-simulasi {
+      margin: 0 0 18px;
+      color: var(--warna-teks-redup);
+      font-size: 0.95rem;
+    }
+
+    .panel-kontrol {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background-color: var(--warna-utama-lembut);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kotak-input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kotak-input label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--warna-teks-redup);
+    }
+
+    .kontrol-angka,
+    .kontrol-operasi {
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border: 2px solid var(--warna-utama);
+      border-radius: 10px;
+      background-color: #ffffff;
+      color: var(--warna-teks);
+      text-align: center;
+    }
+
+    .kontrol-angka {
+      width: 78px;
+    }
+
+    .hasil-hitung {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--warna-utama);
+      padding: 6px 14px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      border: 1px solid var(--warna-garis);
+    }
+
+    .wadah-svg {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--warna-garis);
+      border-radius: 12px;
+      background-color: #ffffff;
+      padding: 10px 4px;
+      margin-bottom: 16px;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 620px;
+      height: auto;
+      display: block;
+    }
+
+    .legenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 0.88rem;
+      margin-bottom: 14px;
+      color: var(--warna-teks-redup);
+    }
+
+    .titik-warna {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .kotak-penjelasan {
+      background-color: var(--warna-latar);
+      border-left: 4px solid var(--warna-utama);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.98rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .kotak-latihan {
+      border-top: 1px solid var(--warna-garis);
+      padding-top: 18px;
+    }
+
+    .kotak-latihan h2 {
+      font-size: 1.1rem;
+      margin: 0 0 10px;
+    }
+
+    .baris-soal {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .teks-soal {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .tombol {
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+
+    .tombol-utama {
+      background-color: var(--warna-utama);
+      color: #ffffff;
+    }
+
+    .tombol-sekunder {
+      background-color: #ffffff;
+      border-color: var(--warna-garis);
+      color: var(--warna-teks);
+    }
+
+    .umpan-balik {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .umpan-balik.benar {
+      background-color: var(--warna-sukses-lembut);
+      color: var(--warna-sukses);
+    }
+
+    .umpan-balik.salah {
+      background-color: var(--warna-bahaya-lembut);
+      color: var(--warna-bahaya);
+    }
+  </style>
 </head>
 <body>
-  <!-- Bagian kepala situs: logo, nama situs, slogan, dan menu navigasi -->
-  <header id="header-situs" class="header-situs" role="banner">
-    <div class="header-dalam">
-      <div class="merek-situs">
-        <div class="logo-cadangan">M</div>
-        <div>
-          <p class="judul-situs">Bahan Ajar Matematika</p>
-          <p class="slogan-situs">Memuat identitas situs...</p>
-        </div>
+  <div class="wadah-simulasi">
+    <h1 class="judul-simulasi">Eksplorasi Garis Bilangan Bulat</h1>
+    <p class="subjudul-simulasi">
+      Ubah bilangan pertama, operasi, dan bilangan kedua untuk melihat arah langkah pada garis bilangan.
+    </p>
+
+    <!-- Kontrol Eksplorasi -->
+    <div class="panel-kontrol">
+      <div class="kotak-input">
+        <label for="bil-a">Bilangan 1 (a)</label>
+        <input id="bil-a" class="kontrol-angka" type="number" min="-6" max="6" value="-3">
+      </div>
+
+      <div class="kotak-input">
+        <label for="operasi">Operasi</label>
+        <select id="operasi" class="kontrol-operasi">
+          <option value="+">+ (Tambah)</option>
+          <option value="-">− (Kurang)</option>
+        </select>
+      </div>
+
+      <div class="kotak-input">
+        <label for="bil-b">Bilangan 2 (b)</label>
+        <input id="bil-b" class="kontrol-angka" type="number" min="-6" max="6" value="7">
+      </div>
+
+      <div class="kotak-input">
+        <label>Hasil</label>
+        <div class="hasil-hitung" id="tampil-hasil">= 4</div>
       </div>
     </div>
-  </header>
 
-  <!-- Area konten utama yang berganti sesuai menu (Beranda, Materi, Bab, Tentang) -->
-  <main id="halaman-utama" class="halaman-utama" role="main">
-    <div class="wadah" id="konten-utama">
-      <div class="kotak-status">Sedang menyiapkan ruang belajar...</div>
+    <!-- Legenda Panah -->
+    <div class="legenda">
+      <span><i class="titik-warna" style="background:#0f6cbd;"></i>Langkah 1: dari 0 ke bilangan pertama</span>
+      <span><i class="titik-warna" style="background:#d97706;"></i>Langkah 2: pergeseran operasi</span>
+      <span><i class="titik-warna" style="background:#15803d;"></i>Titik hasil akhir</span>
     </div>
-  </main>
 
-  <!-- Bagian kaki situs: nama sekolah, tahun ajaran, dan nama guru -->
-  <footer id="footer-situs" class="footer-situs" role="contentinfo">
-    <div class="wadah">
-      <p>Memuat informasi sekolah...</p>
+    <!-- Gambar Garis Bilangan SVG -->
+    <div class="wadah-svg">
+      <svg id="kanvas-garis" viewBox="0 0 760 190" role="img" aria-label="Garis bilangan interaktif"></svg>
     </div>
-  </footer>
 
-  <!-- Modul JavaScript situs (urutan pemuatan tidak boleh tertukar) -->
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/api.js"></script>
-  <script src="assets/js/embed.js"></script>
-  <script src="assets/js/app.js"></script>
+    <!-- Penjelasan Langkah -->
+    <div class="kotak-penjelasan" id="teks-penjelasan"></div>
+
+    <!-- Mini Latihan Mandiri -->
+    <div class="kotak-latihan">
+      <h2>Latihan Cepat</h2>
+      <div class="baris-soal">
+        <span class="teks-soal" id="soal-latihan">Berapakah hasil dari -4 + 6 ?</span>
+        <input id="jawaban-siswa" class="kontrol-angka" type="number" placeholder="?">
+        <button type="button" class="tombol tombol-utama" id="btn-cek">Periksa</button>
+        <button type="button" class="tombol tombol-sekunder" id="btn-soal-baru">Soal Baru</button>
+      </div>
+      <div class="umpan-balik" id="umpan-balik" hidden></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const inputA = document.getElementById("bil-a");
+      const selectOp = document.getElementById("operasi");
+      const inputB = document.getElementById("bil-b");
+      const tampilHasil = document.getElementById("tampil-hasil");
+      const svg = document.getElementById("kanvas-garis");
+      const kotakPenjelasan = document.getElementById("teks-penjelasan");
+
+      const BATAS_MIN = -12;
+      const BATAS_MAX = 12;
+
+      function posisiX(nilai) {
+        const marginKiri = 30;
+        const lebarAktif = 700;
+        const rasio = (nilai - BATAS_MIN) / (BATAS_MAX - BATAS_MIN);
+        return marginKiri + rasio * lebarAktif;
+      }
+
+      function formatBilangan(n) {
+        return n < 0 ? "(" + n + ")" : String(n);
+      }
+
+      function buatElemenSvg(tag, atribut) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+        Object.keys(atribut).forEach(function (k) {
+          el.setAttribute(k, atribut[k]);
+        });
+        return el;
+      }
+
+      function gambarPanahLengkung(dari, ke, tinggiLengkung, warna, labelTeks) {
+        const x1 = posisiX(dari);
+        const x2 = posisiX(ke);
+        const yDasar = 125;
+
+        if (dari === ke) {
+          const teksDiam = buatElemenSvg("text", {
+            x: x1,
+            y: yDasar - 18,
+            "text-anchor": "middle",
+            fill: warna,
+            "font-size": "12",
+            "font-weight": "700"
+          });
+          teksDiam.textContent = labelTeks + " (tetap)";
+          svg.appendChild(teksDiam);
+          return;
+        }
+
+        const xTengah = (x1 + x2) / 2;
+        const yPuncak = yDasar - tinggiLengkung;
+        const arahKanan = x2 > x1;
+        const geserUjung = arahKanan ? -6 : 6;
+
+        const jalur = buatElemenSvg("path", {
+          d: "M " + x1 + " " + yDasar + " Q " + xTengah + " " + yPuncak + " " + (x2 + geserUjung) + " " + yDasar,
+          fill: "none",
+          stroke: warna,
+          "stroke-width": "3"
+        });
+        svg.appendChild(jalur);
+
+        // Kepala panah di titik tujuan
+        const kepala = arahKanan
+          ? x2 + "," + yDasar + " " + (x2 - 9) + "," + (yDasar - 6) + " " + (x2 - 9) + "," + (yDasar + 6)
+          : x2 + "," + yDasar + " " + (x2 + 9) + "," + (yDasar - 6) + " " + (x2 + 9) + "," + (yDasar + 6);
+
+        svg.appendChild(
+          buatElemenSvg("polygon", {
+            points: kepala,
+            fill: warna
+          })
+        );
+
+        const label = buatElemenSvg("text", {
+          x: xTengah,
+          y: (yDasar + yPuncak) / 2 - 4,
+          "text-anchor": "middle",
+          fill: warna,
+          "font-size": "13",
+          "font-weight": "800"
+        });
+        label.textContent = labelTeks;
+        svg.appendChild(label);
+      }
+
+      function perbaruiSimulasi() {
+        let a = Math.max(-6, Math.min(6, parseInt(inputA.value, 10) || 0));
+        let b = Math.max(-6, Math.min(6, parseInt(inputB.value, 10) || 0));
+        inputA.value = a;
+        inputB.value = b;
+
+        const op = selectOp.value;
+        const hasil = op === "+" ? a + b : a - b;
+
+        tampilHasil.textContent = "= " + hasil;
+        svg.innerHTML = "";
+
+        // Garis utama horizontal
+        svg.appendChild(
+          buatElemenSvg("line", {
+            x1: 18,
+            y1: 125,
+            x2: 742,
+            y2: 125,
+            stroke: "#64748b",
+            "stroke-width": "2.5"
+          })
+        );
+
+        // Skala angka -12 sampai 12
+        for (let n = BATAS_MIN; n <= BATAS_MAX; n++) {
+          const x = posisiX(n);
+          const adalahNol = n === 0;
+          svg.appendChild(
+            buatElemenSvg("line", {
+              x1: x,
+              y1: adalahNol ? 115 : 119,
+              x2: x,
+              y2: adalahNol ? 135 : 131,
+              stroke: adalahNol ? "#0f172a" : "#64748b",
+              "stroke-width": adalahNol ? "2.5" : "1.5"
+            })
+          );
+
+          const angka = buatElemenSvg("text", {
+            x: x,
+            y: 154,
+            "text-anchor": "middle",
+            fill: adalahNol ? "#0f172a" : "#475569",
+            "font-size": "12",
+            "font-weight": adalahNol ? "800" : "600"
+          });
+          angka.textContent = String(n);
+          svg.appendChild(angka);
+        }
+
+        // Langkah 1: dari 0 ke a
+        const label1 = a >= 0 ? "+" + a : String(a);
+        gambarPanahLengkung(0, a, 52, "#0f6cbd", label1);
+
+        // Langkah 2: dari a ke hasil
+        const selisih = hasil - a;
+        const label2 = selisih >= 0 ? "+" + selisih : String(selisih);
+        gambarPanahLengkung(a, hasil, 95, "#d97706", label2);
+
+        // Titik hijau hasil akhir
+        svg.appendChild(
+          buatElemenSvg("circle", {
+            cx: posisiX(hasil),
+            cy: 125,
+            r: "6.5",
+            fill: "#15803d",
+            stroke: "#ffffff",
+            "stroke-width": "2"
+          })
+        );
+
+        // Penjelasan langkah demi langkah
+        let kalimat2 = "";
+        if (op === "+" && b >= 0) {
+          kalimat2 = "ditambah bilangan positif " + b + ", artinya melangkah ke kanan sejauh " + b + " satuan";
+        } else if (op === "+" && b < 0) {
+          kalimat2 = "ditambah bilangan negatif " + formatBilangan(b) + ", artinya melangkah ke kiri sejauh " + Math.abs(b) + " satuan";
+        } else if (op === "-" && b >= 0) {
+          kalimat2 = "dikurangi bilangan positif " + b + ", artinya berbalik melangkah ke kiri sejauh " + b + " satuan";
+        } else {
+          kalimat2 = "dikurangi bilangan negatif " + formatBilangan(b) + " (sama dengan ditambah " + Math.abs(b) + "), artinya melangkah ke kanan sejauh " + Math.abs(b) + " satuan";
+        }
+
+        kotakPenjelasan.textContent =
+          "Langkah 1: Mulai dari 0 menuju " + a + ". " +
+          "Langkah 2: Dari " + a + ", karena " + kalimat2 + ", maka tiba di titik hasil akhir " + hasil + ".";
+      }
+
+      inputA.addEventListener("input", perbaruiSimulasi);
+      selectOp.addEventListener("change", perbaruiSimulasi);
+      inputB.addEventListener("input", perbaruiSimulasi);
+      perbaruiSimulasi();
+
+      // Logika Latihan Cepat
+      let jawabanBenar = 2;
+      const soalEl = document.getElementById("soal-latihan");
+      const jawabanEl = document.getElementById("jawaban-siswa");
+      const umpanEl = document.getElementById("umpan-balik");
+
+      function buatSoalBaru() {
+        const a = Math.floor(Math.random() * 13) - 6;
+        const b = Math.floor(Math.random() * 13) - 6;
+        const op = Math.random() < 0.5 ? "+" : "-";
+        jawabanBenar = op === "+" ? a + b : a - b;
+        soalEl.textContent =
+          "Berapakah hasil dari " + formatBilangan(a) + " " + op + " " + formatBilangan(b) + " ?";
+        jawabanEl.value = "";
+        umpanEl.hidden = true;
+      }
+
+      document.getElementById("btn-cek").addEventListener("click", function () {
+        if (jawabanEl.value === "") return;
+        const tebakan = parseInt(jawabanEl.value, 10);
+        umpanEl.hidden = false;
+        if (tebakan === jawabanBenar) {
+          umpanEl.className = "umpan-balik benar";
+          umpanEl.textContent = "Tepat sekali! Hasilnya memang " + jawabanBenar + ".";
+        } else {
+          umpanEl.className = "umpan-balik salah";
+          umpanEl.textContent =
+            "Belum tepat. Coba masukkan bilangan tersebut ke simulasi garis bilangan di atas untuk mengecek arah langkahnya!";
+        }
+      });
+
+      document.getElementById("btn-soal-baru").addEventListener("click", buatSoalBaru);
+    })();
+  </script>
 </body>
 </html>

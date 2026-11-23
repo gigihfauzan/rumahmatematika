@@ -18,7 +18,7 @@ const API = (function () {
     return CONFIG.API_URL.trim();
   }
 
-  // Mengambil data dari server (metode GET)[cite: 1]
+  // Mengambil data dari server (metode GET)
   async function get(aksi, parameter) {
     const baseUrl = ambilUrlServer();
     const url = new URL(baseUrl);
@@ -171,6 +171,12 @@ const API = (function () {
     },
     hapusKonten: function (idKonten) {
       return post("hapus_konten", { id: idKonten }, true);
+    },
+    simpanPengumuman: function (dataPengumuman) {
+      return post("simpan_pengumuman", dataPengumuman, true);
+    },
+    hapusPengumuman: function (idPengumuman) {
+      return post("hapus_pengumuman", { id: idPengumuman }, true);
     },
     gantiPassword: function (passwordLama, passwordBaru) {
       return post(

@@ -1,7 +1,8 @@
 // ============================================================================
-// LOGIKA HALAMAN ADMIN GURU (ADMIN.JS — TAHAP 1)
+// LOGIKA HALAMAN ADMIN GURU (ADMIN.JS — TAHAP 2)
 // Mengatur login sesi, dasbor, pengaturan situs, kelas & bab, pengelolaan
-// konten dengan pratinjau tersemat, serta penggantian password admin.
+// konten (YouTube, Drive, Form, GeoGebra, Media Web, Teks/Rumus) dengan
+// pratinjau tersemat, pengelolaan pengumuman, serta ganti password admin.
 // ============================================================================
 
 (function () {
@@ -11,7 +12,8 @@
     daftar_pengaturan: [],
     kelas: [],
     bab: [],
-    konten: []
+    konten: [],
+    pengumuman: []
   };
 
   let menuAktif = "dasbor";
@@ -85,7 +87,6 @@
   });
 
   async function mulaiHalamanAdmin() {
-    // Jika masih ada token sesi di tab peramban, coba muat data admin langsung
     if (API.ambilToken()) {
       try {
         const data = await API.ambilDataAdmin();
@@ -104,7 +105,8 @@
       daftar_pengaturan: Array.isArray(data.daftar_pengaturan) ? data.daftar_pengaturan : [],
       kelas: Array.isArray(data.kelas) ? data.kelas : [],
       bab: Array.isArray(data.bab) ? data.bab : [],
-      konten: Array.isArray(data.konten) ? data.konten : []
+      konten: Array.isArray(data.konten) ? data.konten : [],
+      pengumuman: Array.isArray(data.pengumuman) ? data.pengumuman : []
     };
 
     terapkanTemaAdmin(stateAdmin.pengaturan);
@@ -237,7 +239,8 @@
       { kode: "pengaturan", label: "2. Pengaturan Situs" },
       { kode: "kelas_bab", label: "3. Kelas & Bab" },
       { kode: "konten", label: "4. Konten Materi" },
-      { kode: "password", label: "5. Ganti Password" }
+      { kode: "pengumuman", label: "5. Pengumuman" },
+      { kode: "password", label: "6. Ganti Password" }
     ];
 
     const bilahMenu = buatElemen("nav", "daftar-tab");
@@ -266,6 +269,7 @@
     else if (menuAktif === "pengaturan") renderTabPengaturan(areaTab);
     else if (menuAktif === "kelas_bab") renderTabKelasDanBab(areaTab);
     else if (menuAktif === "konten") renderTabKonten(areaTab);
+    else if (menuAktif === "pengumuman") renderTabPengumuman(areaTab);
     else if (menuAktif === "password") renderTabGantiPassword(areaTab);
   }
 
@@ -285,13 +289,16 @@
     const kontenTerbit = stateAdmin.konten.filter(function (c) {
       return c.status === "terbit";
     }).length;
+    const pengumumanAktif = stateAdmin.pengumuman.filter(function (p) {
+      return p.status === "aktif" || p.status === "terbit";
+    }).length;
 
     const grid = buatElemen("div", "grid-dasbor");
     const kartuRingkasan = [
-      { judul: "Kelas Aktif", angka: stateAdmin.kelas.filter(function (k) { return k.aktif === "ya"; }).length },
       { judul: "Bab Sudah Terbit", angka: babTerbit },
       { judul: "Bab Masih Draf", angka: babDraf },
-      { judul: "Total Materi Terbit", angka: kontenTerbit }
+      { judul: "Total Materi Terbit", angka: kontenTerbit },
+      { judul: "Pengumuman Aktif", angka: pengumumanAktif }
     ];
 
     kartuRingkasan.forEach(function (item) {
@@ -308,7 +315,7 @@
       buatTeks(
         "p",
         "",
-        "1) Buka menu '2. Pengaturan Situs' untuk melengkapi identitas sekolah dan tema warna. 2) Buka '3. Kelas & Bab' untuk membuat bab baru dan mengubah statusnya menjadi Terbit. 3) Buka '4. Konten Materi' untuk menambahkan video YouTube, PDF Google Drive, atau teks rumus."
+        "1) Atur identitas sekolah dan tema di '2. Pengaturan Situs'. 2) Buat atau terbitkan bab di '3. Kelas & Bab'. 3) Isi video YouTube, PDF Drive, Kuis Form, GeoGebra, Media Web, atau teks rumus di '4. Konten Materi'. 4) Pasang info jadwal atau tugas penting di '5. Pengumuman'."
       )
     );
 
@@ -332,6 +339,14 @@
       renderRuangKerjaAdmin();
     });
     barisTombol.appendChild(btnKeKonten);
+
+    const btnKePengumuman = buatTeks("button", "tombol tombol-sekunder", "+ Buat Pengumuman");
+    btnKePengumuman.type = "button";
+    btnKePengumuman.addEventListener("click", function () {
+      menuAktif = "pengumuman";
+      renderRuangKerjaAdmin();
+    });
+    barisTombol.appendChild(btnKePengumuman);
 
     kartuPanduan.appendChild(barisTombol);
     wadah.appendChild(kartuPanduan);
@@ -378,7 +393,6 @@
           elemenInput.appendChild(opt);
         });
 
-        // Pratinjau tema warna secara langsung saat dropdown tema diganti
         if (def.kunci === "tema") {
           elemenInput.addEventListener("change", function () {
             document.documentElement.setAttribute("data-tema", elemenInput.value);
@@ -444,7 +458,6 @@
   // ==========================================================================
 
   function renderTabKelasDanBab(wadah) {
-    // --- BAGIAN A: KELOLA KELAS ---
     const kartuKelas = buatElemen("section", "kartu-materi");
     kartuKelas.style.marginBottom = "24px";
     kartuKelas.appendChild(buatTeks("h2", "", "Daftar Kelas"));
@@ -492,7 +505,6 @@
 
     wadah.appendChild(kartuKelas);
 
-    // --- BAGIAN B: FORMULIR TAMBAH / UBAH BAB ---
     const kartuFormBab = buatElemen("section", "kartu-materi");
     kartuFormBab.style.marginBottom = "24px";
 
@@ -504,7 +516,6 @@
 
     const baris1 = buatElemen("div", "baris-dua-kolom");
 
-    // Pilih Kelas
     const grupKelas = buatElemen("div", "grup-form");
     grupKelas.appendChild(buatTeks("label", "label-form", "Pilih Kelas"));
     const selectKelas = buatElemen("select", "select-form");
@@ -517,7 +528,6 @@
     grupKelas.appendChild(selectKelas);
     baris1.appendChild(grupKelas);
 
-    // Ikon Bab
     const grupIkon = buatElemen("div", "grup-form");
     grupIkon.appendChild(buatTeks("label", "label-form", "Ikon Bab (Emoji)"));
     const inputIkon = buatElemen("input", "input-form");
@@ -529,7 +539,6 @@
 
     formBab.appendChild(baris1);
 
-    // Judul Bab
     const grupJudul = buatElemen("div", "grup-form");
     grupJudul.appendChild(buatTeks("label", "label-form", "Judul Bab"));
     const inputJudul = buatElemen("input", "input-form");
@@ -539,7 +548,6 @@
     grupJudul.appendChild(inputJudul);
     formBab.appendChild(grupJudul);
 
-    // Deskripsi Singkat
     const grupDesk = buatElemen("div", "grup-form");
     grupDesk.appendChild(buatTeks("label", "label-form", "Deskripsi Singkat"));
     const inputDesk = buatElemen("input", "input-form");
@@ -548,7 +556,6 @@
     grupDesk.appendChild(inputDesk);
     formBab.appendChild(grupDesk);
 
-    // Tujuan Belajar
     const grupTujuan = buatElemen("div", "grup-form");
     grupTujuan.appendChild(buatTeks("label", "label-form", "Tujuan Pembelajaran (Tab Mulai)"));
     const inputTujuan = buatElemen("textarea", "textarea-form");
@@ -557,7 +564,6 @@
     grupTujuan.appendChild(inputTujuan);
     formBab.appendChild(grupTujuan);
 
-    // Pertanyaan Pemantik
     const grupPemantik = buatElemen("div", "grup-form");
     grupPemantik.appendChild(buatTeks("label", "label-form", "Pertanyaan Pemantik (Tab Mulai)"));
     const inputPemantik = buatElemen("textarea", "textarea-form");
@@ -568,7 +574,6 @@
 
     const baris2 = buatElemen("div", "baris-dua-kolom");
 
-    // Urutan
     const grupUrutan = buatElemen("div", "grup-form");
     grupUrutan.appendChild(buatTeks("label", "label-form", "Nomor Urut Bab"));
     const inputUrutan = buatElemen("input", "input-form");
@@ -578,7 +583,6 @@
     grupUrutan.appendChild(inputUrutan);
     baris2.appendChild(grupUrutan);
 
-    // Status
     const grupStatus = buatElemen("div", "grup-form");
     grupStatus.appendChild(buatTeks("label", "label-form", "Status Publikasi"));
     const selectStatus = buatElemen("select", "select-form");
@@ -649,7 +653,6 @@
     kartuFormBab.appendChild(formBab);
     wadah.appendChild(kartuFormBab);
 
-    // --- BAGIAN C: DAFTAR BAB YANG SUDAH ADA ---
     const kartuDaftarBab = buatElemen("section", "kartu-materi");
     kartuDaftarBab.appendChild(buatTeks("h2", "", "Daftar Semua Bab (" + stateAdmin.bab.length + ")"));
 
@@ -751,7 +754,6 @@
       return;
     }
 
-    // --- BAGIAN A: FORMULIR TAMBAH / UBAH KONTEN ---
     const kartuForm = buatElemen("section", "kartu-materi");
     kartuForm.style.marginBottom = "24px";
 
@@ -763,7 +765,6 @@
 
     const baris1 = buatElemen("div", "baris-dua-kolom");
 
-    // Pilih Bab
     const grupBab = buatElemen("div", "grup-form");
     grupBab.appendChild(buatTeks("label", "label-form", "Pilih Bab"));
     const selectBab = buatElemen("select", "select-form");
@@ -779,14 +780,13 @@
     grupBab.appendChild(selectBab);
     baris1.appendChild(grupBab);
 
-    // Pilih Tab Bab
     const grupTab = buatElemen("div", "grup-form");
     grupTab.appendChild(buatTeks("label", "label-form", "Letakkan di Tab"));
     const selectTab = buatElemen("select", "select-form");
     [
       { nilai: "pahami", label: "Pahami (Ringkasan, PDF, Slide)" },
       { nilai: "tonton", label: "Tonton (Video Pembelajaran)" },
-      { nilai: "coba", label: "Coba (LKPD, Latihan)" },
+      { nilai: "coba", label: "Coba (LKPD, Simulasi, Latihan)" },
       { nilai: "uji", label: "Uji (Kuis & Pembahasan)" },
       { nilai: "mulai", label: "Mulai (Pengantar Tambahan)" }
     ].forEach(function (t) {
@@ -800,7 +800,6 @@
 
     form.appendChild(baris1);
 
-    // Judul Konten
     const grupJudul = buatElemen("div", "grup-form");
     grupJudul.appendChild(buatTeks("label", "label-form", "Judul Materi"));
     const inputJudul = buatElemen("input", "input-form");
@@ -810,7 +809,6 @@
     grupJudul.appendChild(inputJudul);
     form.appendChild(grupJudul);
 
-    // Jenis Konten
     const grupJenis = buatElemen("div", "grup-form");
     grupJenis.appendChild(buatTeks("label", "label-form", "Jenis Konten"));
     const selectJenis = buatElemen("select", "select-form");
@@ -820,6 +818,9 @@
       { nilai: "dokumen", label: "Dokumen / Google Docs dari Drive" },
       { nilai: "slide", label: "Presentasi / Google Slides dari Drive" },
       { nilai: "gambar", label: "Gambar / Poster dari Google Drive" },
+      { nilai: "kuis_form", label: "Kuis Google Form" },
+      { nilai: "geogebra", label: "Simulasi GeoGebra" },
+      { nilai: "media_web", label: "Media Web Interaktif (Folder media/...)" },
       { nilai: "teks", label: "Teks & Rumus Matematika (KaTeX)" }
     ].forEach(function (j) {
       const opt = document.createElement("option");
@@ -830,9 +831,10 @@
     grupJenis.appendChild(selectJenis);
     form.appendChild(grupJenis);
 
-    // Input Tautan (untuk YouTube / Drive)
+    // Input Tautan atau Jalur Folder Media Web
     const grupUrl = buatElemen("div", "grup-form");
-    grupUrl.appendChild(buatTeks("label", "label-form", "Tautan Asli (YouTube atau Google Drive)"));
+    const labelUrl = buatTeks("label", "label-form", "Tautan Asli (YouTube / Google Drive / Form / GeoGebra)");
+    grupUrl.appendChild(labelUrl);
     const inputUrl = buatElemen("input", "input-form");
     inputUrl.type = "url";
     inputUrl.placeholder = "Tempelkan tautan https://... di sini";
@@ -862,11 +864,40 @@
     form.appendChild(wadahPratinjau);
 
     function perbaruiTampilanInputJenis() {
-      const adalahTeks = selectJenis.value === "teks";
+      const jenis = selectJenis.value;
+      const adalahTeks = jenis === "teks";
+      const adalahMediaWeb = jenis === "media_web";
+
       grupUrl.hidden = adalahTeks;
       grupTeks.hidden = !adalahTeks;
       wadahPratinjau.hidden = true;
       wadahPratinjau.innerHTML = "";
+
+      if (adalahMediaWeb) {
+        inputUrl.type = "text";
+        labelUrl.textContent = "Nama Folder Media Web di Repositori";
+        inputUrl.placeholder = "Contoh: media/bilangan-bulat";
+        bantuanUrl.textContent =
+          "Masukkan jalur folder di dalam repositori GitHub Anda yang berisi berkas index.html (contoh: media/bilangan-bulat).";
+      } else if (jenis === "kuis_form") {
+        inputUrl.type = "url";
+        labelUrl.textContent = "Tautan Kuis Google Form";
+        inputUrl.placeholder = "https://docs.google.com/forms/d/e/.../viewform atau https://forms.gle/...";
+        bantuanUrl.textContent =
+          "Tempelkan tautan formulir dari tombol Kirim (Send) di Google Form.";
+      } else if (jenis === "geogebra") {
+        inputUrl.type = "url";
+        labelUrl.textContent = "Tautan Aktivitas / Applet GeoGebra";
+        inputUrl.placeholder = "https://www.geogebra.org/m/...";
+        bantuanUrl.textContent =
+          "Tempelkan tautan materi dari situs geogebra.org.";
+      } else {
+        inputUrl.type = "url";
+        labelUrl.textContent = "Tautan Asli (YouTube atau Google Drive)";
+        inputUrl.placeholder = "Tempelkan tautan https://... di sini";
+        bantuanUrl.textContent =
+          "Untuk berkas Google Drive, pastikan akses berbagi sudah diatur ke 'Siapa saja yang memiliki tautan dapat melihat'.";
+      }
     }
 
     selectJenis.addEventListener("change", perbaruiTampilanInputJenis);
@@ -921,7 +952,6 @@
 
     const baris2 = buatElemen("div", "baris-dua-kolom");
 
-    // Urutan Konten
     const grupUrutan = buatElemen("div", "grup-form");
     grupUrutan.appendChild(buatTeks("label", "label-form", "Urutan Tampil"));
     const inputUrutan = buatElemen("input", "input-form");
@@ -931,7 +961,6 @@
     grupUrutan.appendChild(inputUrutan);
     baris2.appendChild(grupUrutan);
 
-    // Status Konten
     const grupStatus = buatElemen("div", "grup-form");
     grupStatus.appendChild(buatTeks("label", "label-form", "Status"));
     const selectStatus = buatElemen("select", "select-form");
@@ -1029,7 +1058,6 @@
     kartuForm.appendChild(form);
     wadah.appendChild(kartuForm);
 
-    // --- BAGIAN B: DAFTAR KONTEN PER BAB ---
     const kartuDaftar = buatElemen("section", "kartu-materi");
     kartuDaftar.appendChild(buatTeks("h2", "", "Daftar Semua Konten (" + stateAdmin.konten.length + ")"));
 
@@ -1120,7 +1148,200 @@
   }
 
   // ==========================================================================
-  // TAB 5: GANTI PASSWORD ADMIN
+  // TAB 5: KELOLA PENGUMUMAN BERANDA
+  // ==========================================================================
+
+  function renderTabPengumuman(wadah) {
+    const kartuForm = buatElemen("section", "kartu-materi");
+    kartuForm.style.marginBottom = "24px";
+
+    const judulForm = buatTeks("h2", "", "Buat Pengumuman Baru");
+    kartuForm.appendChild(judulForm);
+    kartuForm.appendChild(
+      buatTeks(
+        "p",
+        "bantuan-form",
+        "Pengumuman berstatus Aktif akan tampil di halaman Beranda siswa sampai tanggal batas tayang berakhir."
+      )
+    );
+
+    const form = buatElemen("form");
+    form.style.marginTop = "16px";
+    let idEdit = "";
+
+    const grupJudul = buatElemen("div", "grup-form");
+    grupJudul.appendChild(buatTeks("label", "label-form", "Judul Pengumuman"));
+    const inputJudul = buatElemen("input", "input-form");
+    inputJudul.type = "text";
+    inputJudul.required = true;
+    inputJudul.placeholder = "Contoh: Jadwal Penilaian Harian Bab Bilangan Bulat";
+    grupJudul.appendChild(inputJudul);
+    form.appendChild(grupJudul);
+
+    const grupIsi = buatElemen("div", "grup-form");
+    grupIsi.appendChild(buatTeks("label", "label-form", "Isi Pengumuman"));
+    const inputIsi = buatElemen("textarea", "textarea-form");
+    inputIsi.rows = 3;
+    inputIsi.required = true;
+    inputIsi.placeholder = "Tuliskan informasi lengkap untuk siswa...";
+    grupIsi.appendChild(inputIsi);
+    form.appendChild(grupIsi);
+
+    const baris2 = buatElemen("div", "baris-dua-kolom");
+
+    const grupTanggal = buatElemen("div", "grup-form");
+    grupTanggal.appendChild(buatTeks("label", "label-form", "Aktif Sampai Tanggal (Opsional)"));
+    const inputTanggal = buatElemen("input", "input-form");
+    inputTanggal.type = "date";
+    grupTanggal.appendChild(inputTanggal);
+    grupTanggal.appendChild(
+      buatTeks("span", "bantuan-form", "Kosongkan jika pengumuman ingin terus tampil sampai dinonaktifkan.")
+    );
+    baris2.appendChild(grupTanggal);
+
+    const grupStatus = buatElemen("div", "grup-form");
+    grupStatus.appendChild(buatTeks("label", "label-form", "Status Pengumuman"));
+    const selectStatus = buatElemen("select", "select-form");
+    [
+      { nilai: "aktif", label: "Aktif (Tampil di Beranda)" },
+      { nilai: "nonaktif", label: "Nonaktif (Disembunyikan)" }
+    ].forEach(function (st) {
+      const opt = document.createElement("option");
+      opt.value = st.nilai;
+      opt.textContent = st.label;
+      selectStatus.appendChild(opt);
+    });
+    grupStatus.appendChild(selectStatus);
+    baris2.appendChild(grupStatus);
+
+    form.appendChild(baris2);
+
+    const barisTombol = buatElemen("div");
+    barisTombol.style.display = "flex";
+    barisTombol.style.gap = "10px";
+
+    const tombolSimpan = buatTeks("button", "tombol tombol-utama", "Simpan Pengumuman");
+    tombolSimpan.type = "submit";
+    barisTombol.appendChild(tombolSimpan);
+
+    const tombolBatal = buatTeks("button", "tombol tombol-sekunder", "Batal Ubah");
+    tombolBatal.type = "button";
+    tombolBatal.hidden = true;
+    tombolBatal.addEventListener("click", function () {
+      idEdit = "";
+      judulForm.textContent = "Buat Pengumuman Baru";
+      form.reset();
+      tombolBatal.hidden = true;
+    });
+    barisTombol.appendChild(tombolBatal);
+
+    form.appendChild(barisTombol);
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      tombolSimpan.disabled = true;
+      tombolSimpan.textContent = "Menyimpan...";
+
+      try {
+        const dataBaru = await API.simpanPengumuman({
+          id: idEdit,
+          judul: inputJudul.value.trim(),
+          isi: inputIsi.value.trim(),
+          aktif_sampai: inputTanggal.value,
+          status: selectStatus.value
+        });
+        stateAdmin = Object.assign(stateAdmin, dataBaru);
+        tampilkanToast("Pengumuman berhasil disimpan!", "sukses");
+        renderRuangKerjaAdmin();
+      } catch (err) {
+        tanganiGalatAdmin(err);
+        tombolSimpan.disabled = false;
+        tombolSimpan.textContent = "Simpan Pengumuman";
+      }
+    });
+
+    kartuForm.appendChild(form);
+    wadah.appendChild(kartuForm);
+
+    const kartuDaftar = buatElemen("section", "kartu-materi");
+    kartuDaftar.appendChild(buatTeks("h2", "", "Daftar Pengumuman (" + stateAdmin.pengumuman.length + ")"));
+
+    if (stateAdmin.pengumuman.length === 0) {
+      kartuDaftar.appendChild(
+        buatTeks("p", "bantuan-form", "Belum ada pengumuman yang dibuat.")
+      );
+    } else {
+      stateAdmin.pengumuman.forEach(function (item) {
+        const aktif = item.status === "aktif" || item.status === "terbit";
+        const baris = buatElemen("div", "item-daftar-admin");
+
+        const kiri = buatElemen("div");
+        kiri.appendChild(buatTeks("strong", "", item.judul + " "));
+        kiri.appendChild(
+          buatTeks(
+            "span",
+            "lencana " + (aktif ? "lencana-terbit" : "lencana-draf"),
+            aktif ? "Aktif" : "Nonaktif"
+          )
+        );
+        kiri.appendChild(
+          buatTeks(
+            "div",
+            "bantuan-form",
+            (item.aktif_sampai ? "Berlaku s.d. " + item.aktif_sampai + " • " : "") +
+              item.isi.slice(0, 90) +
+              (item.isi.length > 90 ? "..." : "")
+          )
+        );
+        baris.appendChild(kiri);
+
+        const kanan = buatElemen("div");
+        kanan.style.display = "flex";
+        kanan.style.gap = "8px";
+
+        const btnUbah = buatTeks("button", "tombol tombol-sekunder tombol-kecil", "Ubah");
+        btnUbah.type = "button";
+        btnUbah.addEventListener("click", function () {
+          idEdit = item.id;
+          judulForm.textContent = "Ubah Pengumuman: " + item.judul;
+          inputJudul.value = item.judul;
+          inputIsi.value = item.isi;
+          inputTanggal.value = item.aktif_sampai || "";
+          selectStatus.value = aktif ? "aktif" : "nonaktif";
+          tombolBatal.hidden = false;
+          kartuForm.scrollIntoView({ behavior: "smooth" });
+        });
+        kanan.appendChild(btnUbah);
+
+        const btnHapus = buatTeks("button", "tombol tombol-bahaya tombol-kecil", "Hapus");
+        btnHapus.type = "button";
+        btnHapus.addEventListener("click", async function () {
+          const yakin = window.confirm("Yakin ingin menghapus pengumuman '" + item.judul + "'?");
+          if (!yakin) return;
+
+          btnHapus.disabled = true;
+          try {
+            const dataBaru = await API.hapusPengumuman(item.id);
+            stateAdmin = Object.assign(stateAdmin, dataBaru);
+            tampilkanToast("Pengumuman berhasil dihapus.", "sukses");
+            renderRuangKerjaAdmin();
+          } catch (err) {
+            tanganiGalatAdmin(err);
+            btnHapus.disabled = false;
+          }
+        });
+        kanan.appendChild(btnHapus);
+
+        baris.appendChild(kanan);
+        kartuDaftar.appendChild(baris);
+      });
+    }
+
+    wadah.appendChild(kartuDaftar);
+  }
+
+  // ==========================================================================
+  // TAB 6: GANTI PASSWORD ADMIN
   // ==========================================================================
 
   function renderTabGantiPassword(wadah) {
