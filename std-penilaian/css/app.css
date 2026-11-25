@@ -193,9 +193,10 @@ svg.lucide { width: 18px; height: 18px; stroke-width: 1.5; flex-shrink: 0; }
 }
 .kop-logo { width: 72px; height: 72px; object-fit: contain; border-radius: 6px; background: var(--permukaan-2); flex-shrink: 0; }
 .kop-logo.kosong-logo { display: inline-flex; align-items: center; justify-content: center; color: var(--teks-ringan); font-size: .72rem; border: 1px dashed var(--border); }
-.kop-teks h2 { font-size: 1.05rem; color: var(--teks); }
-.kop-teks .dinas { font-size: .82rem; color: var(--teks-ringan); }
-.kop-teks .alamat { font-size: .78rem; color: var(--teks-ringan); margin-top: .15rem; }
+.kop-teks h2 { margin: 0; }
+.kop-teks .kop-instansi { font-size: .82rem; color: var(--teks-ringan); text-transform: uppercase; letter-spacing: .04em; }
+.kop-teks .kop-sekolah { font-size: 1.1rem; color: var(--teks); }
+.kop-teks .kop-baris { font-size: .78rem; color: var(--teks-ringan); margin-top: .1rem; }
 
 /* === Drawer (layar kecil) === */
 .overlay { position: fixed; inset: 0; background: rgba(15,27,45,.45); z-index: 40; display: none; }
