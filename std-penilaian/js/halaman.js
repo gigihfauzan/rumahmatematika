@@ -365,7 +365,7 @@ function renderPengaturan(sesi) {
           <input class="input" id="nama_sekolah" value="${escape(p.nama_sekolah || '')}" />
         </div>
         <div class="field">
-          <label class="label" for="nama_dinas">Nama Dinas / Yayasan (untuk kop)</label>
+          <label class="label" for="nama_dinas">Nama Instansi (Dinas/Yayasan) untuk kop</label>
           <input class="input" id="nama_dinas" value="${escape(p.nama_dinas || '')}" />
         </div>
         <div class="field-row">
@@ -428,24 +428,24 @@ function renderKop(p) {
   const logo = p.logo_datauri
     ? `<img class="kop-logo" src="${escape(p.logo_datauri)}" alt="Logo" />`
     : `<span class="kop-logo kosong-logo">tanpa logo</span>`;
-  const nama = escape(p.nama_sekolah || 'Nama Sekolah');
-  const dinas = escape(p.nama_dinas || '');
-  const alamat = escape([p.alamat, p.kontak].filter(Boolean).join(' • '));
+  const instansi = escape(p.nama_dinas || '');
+  const sekolah = escape(p.nama_sekolah || 'Nama Sekolah');
+  const alamat = escape(p.alamat || '');
+  const kontak = escape(p.kontak || '');
+  // Urutan kop: Nama Instansi → Nama Sekolah → Alamat → Kontak (tiap baris sendiri).
   return `${logo}
     <div class="kop-teks">
-      <h2 data-kop="nama_sekolah">${nama}</h2>
-      ${dinas ? `<div class="dinas" data-kop="nama_dinas">${dinas}</div>` : ''}
-      ${alamat ? `<div class="alamat" data-kop="alamat_kontak">${alamat}</div>` : ''}
+      ${instansi ? `<div class="kop-instansi" data-kop="nama_dinas">${instansi}</div>` : ''}
+      <h2 class="kop-sekolah" data-kop="nama_sekolah">${sekolah}</h2>
+      ${alamat ? `<div class="kop-baris" data-kop="alamat">${alamat}</div>` : ''}
+      ${kontak ? `<div class="kop-baris" data-kop="kontak">${kontak}</div>` : ''}
     </div>`;
 }
 
 function pasangListenerPengaturan() {
-  // Pratinjau kop langsung saat mengetik.
-  const pemetaan = {
-    nama_sekolah: 'nama_sekolah', nama_dinas: 'nama_dinas',
-    alamat: 'alamat_kontak', kontak: 'alamat_kontak'
-  };
-  Object.keys(pemetaan).forEach(id => {
+  // Bidang yang memengaruhi pratinjau kop — setiap perubahan melukis ulang kop.
+  const inputKop = ['nama_sekolah', 'nama_dinas', 'alamat', 'kontak'];
+  inputKop.forEach(id => {
     const input = document.getElementById(id);
     if (!input) return;
     input.addEventListener('input', () => {
