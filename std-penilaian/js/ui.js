@@ -1,5 +1,7 @@
 // ui.js — Komponen UI kecil: render elemen dari string, ikon, toast, escape.
-import { createIcons } from 'https://cdn.jsdelivr.net/npm/lucide@0.460.0/+esm';
+// Lucide: import createIcons + icons, lalu panggil createIcons({ icons }) agar
+// semua ikon terdaftar (createIcons() tanpa argumen sering tidak merender di bundle +esm).
+import { createIcons, icons } from 'https://cdn.jsdelivr.net/npm/lucide@0.460.0/+esm';
 
 /** Buat elemen DOM dari string HTML. */
 export function el(html) {
@@ -10,7 +12,7 @@ export function el(html) {
 
 /** Pasang ulang ikon Lucide pada elemen yang baru dirender. */
 export function renderIkon() {
-  try { createIcons(); } catch (e) { /* ikon non-fatal */ }
+  try { createIcons({ icons }); } catch (e) { /* ikon non-fatal */ }
 }
 
 /** Escape teks agar aman dimasukkan ke HTML. */

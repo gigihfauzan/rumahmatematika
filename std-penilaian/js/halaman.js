@@ -21,6 +21,23 @@ let state = { pengaturan: null };
 // Pasang handler global tombol tutup modal (sekali, idempoten).
 pasangModalTutupGlobal();
 
+/** Pasang tombol "mata" untuk menampilkan/menyembunyikan password pada wadah. */
+function pasangTogglePassword(wadah) {
+  if (!wadah) return;
+  wadah.querySelectorAll('[data-toggle]').forEach(function (btn) {
+    if (btn.dataset.terpasang === '1') return;
+    btn.dataset.terpasang = '1';
+    btn.addEventListener('click', function () {
+      const input = wadah.querySelector('#' + btn.dataset.toggle);
+      if (!input) return;
+      const tampil = input.type === 'text';
+      input.type = tampil ? 'password' : 'text';
+      btn.innerHTML = tampil ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>';
+      try { renderIkon(); } catch (e) {}
+    });
+  });
+}
+
 // =========================== LOGIN ===========================
 
 export function renderLogin(pesanGalatAwal) {
@@ -35,12 +52,15 @@ export function renderLogin(pesanGalatAwal) {
         </div>
         <form id="form-login" autocomplete="on">
           <div class="field">
-            <label class="label" for="username">Username</label>
-            <input class="input" id="username" name="username" autocomplete="username" required autofocus />
+            <label class="label" for="username">NIP atau Username</label>
+            <input class="input" id="username" name="username" autocomplete="username" placeholder="NIP atau username" required autofocus />
           </div>
           <div class="field">
             <label class="label" for="password">Password</label>
-            <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+            <div class="pwd-wrap">
+              <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+              <button type="button" class="pwd-toggle" data-toggle="password" aria-label="Tampilkan password"><i data-lucide="eye"></i></button>
+            </div>
           </div>
           <div id="login-galat" class="galat-field"></div>
           <button class="btn btn-blok" id="btn-login" type="submit">
@@ -50,6 +70,7 @@ export function renderLogin(pesanGalatAwal) {
       </div>
     </div>`;
   renderIkon();
+  pasangTogglePassword(document.getElementById('form-login'));
   if (pesanGalatAwal) document.getElementById('login-galat').textContent = pesanGalatAwal;
 
   document.getElementById('form-login').addEventListener('submit', async (ev) => {
@@ -91,16 +112,25 @@ export function renderGantiPassword(wajib) {
         <form id="form-ganti">
           <div class="field">
             <label class="label" for="lama">Password Lama</label>
-            <input class="input" id="lama" type="password" autocomplete="current-password" required autofocus />
+            <div class="pwd-wrap">
+              <input class="input" id="lama" type="password" autocomplete="current-password" required autofocus />
+              <button type="button" class="pwd-toggle" data-toggle="lama" aria-label="Tampilkan password"><i data-lucide="eye"></i></button>
+            </div>
           </div>
           <div class="field">
             <label class="label" for="baru">Password Baru</label>
-            <input class="input" id="baru" type="password" autocomplete="new-password" minlength="8" required />
+            <div class="pwd-wrap">
+              <input class="input" id="baru" type="password" autocomplete="new-password" minlength="8" required />
+              <button type="button" class="pwd-toggle" data-toggle="baru" aria-label="Tampilkan password"><i data-lucide="eye"></i></button>
+            </div>
             <div class="petunjuk">Minimal 8 karakter.</div>
           </div>
           <div class="field">
             <label class="label" for="baru2">Ulangi Password Baru</label>
-            <input class="input" id="baru2" type="password" autocomplete="new-password" minlength="8" required />
+            <div class="pwd-wrap">
+              <input class="input" id="baru2" type="password" autocomplete="new-password" minlength="8" required />
+              <button type="button" class="pwd-toggle" data-toggle="baru2" aria-label="Tampilkan password"><i data-lucide="eye"></i></button>
+            </div>
           </div>
           <div id="ganti-galat" class="galat-field"></div>
           <button class="btn btn-blok" id="btn-ganti" type="submit">
@@ -110,6 +140,7 @@ export function renderGantiPassword(wajib) {
       </div>
     </div>`;
   renderIkon();
+  pasangTogglePassword(document.getElementById('form-ganti'));
   document.getElementById('form-ganti').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const lama = document.getElementById('lama').value;

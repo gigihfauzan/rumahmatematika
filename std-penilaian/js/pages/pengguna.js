@@ -358,19 +358,49 @@ async function resetPassword(btn) {
 
 // =========================== PASSWORD AWAL ===========================
 
+/** Kolom password dengan input hanya-baca + tombol salin (menjamin hasil salin persis). */
+function kolomPassword(v) {
+  const aman = escape(v);
+  return `<div class="pwd-salin">
+    <input class="input input-monospace" readonly value="${aman}" data-pwd="${aman}" />
+    <button type="button" class="btn btn-kecil btn-sekunder ikon-btn" data-salin="${aman}" title="Salin password"><i data-lucide="copy"></i></button>
+  </div>`;
+}
+
+/** Pasang tombol salin password pada wadah. */
+function pasangSalinPassword(wadah) {
+  if (!wadah) return;
+  wadah.querySelectorAll('[data-salin]').forEach(function (btn) {
+    if (btn.dataset.terpasang === '1') return;
+    btn.dataset.terpasang = '1';
+    btn.addEventListener('click', async function () {
+      const teks = btn.dataset.salin;
+      try {
+        await navigator.clipboard.writeText(teks);
+        toast('Password disalin.', 'ok');
+      } catch (e) {
+        const inp = btn.parentElement.querySelector('[data-pwd]');
+        if (inp) { inp.focus(); inp.select(); try { document.execCommand('copy'); toast('Password disalin.', 'ok'); } catch (e2) { toast('Gagal menyalin. Salin manual dari kotak.', 'err'); } }
+        else toast('Gagal menyalin. Salin manual dari kotak.', 'err');
+      }
+    });
+  });
+}
+
 function tampilkanPassword(daftar) {
   const isi = document.getElementById('password-isi');
   if (!isi) return;
   isi.innerHTML = renderTabel(
     [
-      { k: 'username', judul: 'Username' },
-      { k: 'password_awal', judul: 'Password Awal', render: v => `<code>${escape(v)}</code>` }
+      { k: 'username', judul: 'Username', render: v => `<code>${escape(v)}</code>` },
+      { k: 'password_awal', judul: 'Password Awal', render: v => kolomPassword(v) }
     ],
     daftar,
     { kosongPesan: 'Tidak ada.' }
   );
   modalBuka('modal-password');
   renderIkon();
+  pasangSalinPassword(isi);
 }
 
 function unduhPasswordSaatIni() {
@@ -464,15 +494,16 @@ async function jalankanImpor() {
     const isi = document.getElementById('impor-hasil-isi');
     isi.innerHTML = renderTabel(
       [
-        { k: 'username', judul: 'Username' },
+        { k: 'username', judul: 'Username', render: v => `<code>${escape(v)}</code>` },
         { k: 'nama_lengkap', judul: 'Nama Lengkap' },
-        { k: 'password_awal', judul: 'Password Awal', render: v => `<code>${escape(v)}</code>` }
+        { k: 'password_awal', judul: 'Password Awal', render: v => kolomPassword(v) }
       ],
       d.dibuat || [],
       { kosongPesan: 'Tidak ada akun baru.' }
     );
     modalBuka('modal-impor-hasil');
     renderIkon();
+    pasangSalinPassword(isi);
     toast(`${d.jumlah} akun baru dibuat.`, 'ok');
     // Bersihkan pratinjau & state impor.
     state.barisImpor = [];
