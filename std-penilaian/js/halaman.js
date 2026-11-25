@@ -4,8 +4,22 @@ import { login as apiLogin, logout as apiLogout, gantiPassword, getSesiCache, bo
 import { panggil, GalatApi } from './api.js';
 import { navigasi, daftar, setSesiAktif, jalan } from './router.js';
 import { initTema, terapkan, terapkanTemaSekolah, setTemaSaya, temaSaya, TEMA_VALID, TEMA_INFO } from './tema.js';
+import { pasangModalTutupGlobal } from './komponen.js';
+// Halaman Tahap 2A + 2B (modul data master, siswa, naik kelas, mutasi).
+import { renderDasbor } from './pages/dasbor.js';
+import { renderTahunAjaran } from './pages/ta.js';
+import { renderPengguna } from './pages/pengguna.js';
+import { renderKelas } from './pages/kelas.js';
+import { renderMapel } from './pages/mapel.js';
+import { renderPenugasan } from './pages/penugasan.js';
+import { renderSiswa } from './pages/siswa.js';
+import { renderNaikKelas } from './pages/naikkelas.js';
+import { renderMutasi } from './pages/mutasi.js';
 
 let state = { pengaturan: null };
+
+// Pasang handler global tombol tutup modal (sekali, idempoten).
+pasangModalTutupGlobal();
 
 // =========================== LOGIN ===========================
 
@@ -141,15 +155,22 @@ async function muatSetelahLogin() {
 
 const MENU = [
   { grup: 'Utama', peran: null, item: [
-    { judul: 'Beranda', ikon: 'home', hash: '#/beranda' }
+    { judul: 'Beranda', ikon: 'home', hash: '#/beranda' },
+    { judul: 'Dasbor', ikon: 'layout-dashboard', hash: '#/dasbor' }
+  ]},
+  // Data Master: admin menulis, standar penilaian lihat.
+  { grup: 'Data Master', peran: 'standar_penilaian', item: [
+    { judul: 'Kelas & Rombel', ikon: 'school', hash: '#/kelas' },
+    { judul: 'Mapel & Slot', ikon: 'book-open', hash: '#/mapel' },
+    { judul: 'Penugasan', ikon: 'clipboard-list', hash: '#/penugasan' },
+    { judul: 'Data Siswa', ikon: 'graduation-cap', hash: '#/siswa' }
   ]},
   { grup: 'Administrasi', peran: 'admin', item: [
     { judul: 'Pengaturan Sekolah', ikon: 'settings', hash: '#/pengaturan' },
-    { judul: 'Akun Guru', ikon: 'users', hash: '#/kedepan/Akun Guru', kedepan: true },
-    { judul: 'Data Siswa', ikon: 'graduation-cap', hash: '#/kedepan/Data Siswa', kedepan: true },
-    { judul: 'Kelas & Rombel', ikon: 'school', hash: '#/kedepan/Kelas & Rombel', kedepan: true },
-    { judul: 'Mapel & Slot', ikon: 'book-open', hash: '#/kedepan/Mapel & Slot', kedepan: true },
-    { judul: 'Penugasan', ikon: 'clipboard-list', hash: '#/kedepan/Penugasan', kedepan: true },
+    { judul: 'Tahun Ajaran', ikon: 'calendar', hash: '#/ta' },
+    { judul: 'Akun Pengguna', ikon: 'users', hash: '#/pengguna' },
+    { judul: 'Naik Kelas', ikon: 'arrow-up-circle', hash: '#/naikkelas' },
+    { judul: 'Mutasi Siswa', ikon: 'user-plus', hash: '#/mutasi' },
     { judul: 'Backup', ikon: 'database-backup', hash: '#/kedepan/Backup', kedepan: true }
   ]},
   { grup: 'Standar Penilaian', peran: 'standar_penilaian', item: [
@@ -278,6 +299,16 @@ function renderPilihanTema() {
 function daftarkanRute(sesi) {
   daftar('beranda', () => renderBeranda(sesi));
   daftar('pengaturan', () => renderPengaturan(sesi));
+  // Tahap 2A + 2B.
+  daftar('dasbor', () => renderDasbor(sesi));
+  daftar('ta', () => renderTahunAjaran(sesi));
+  daftar('pengguna', () => renderPengguna(sesi));
+  daftar('kelas', () => renderKelas(sesi));
+  daftar('mapel', () => renderMapel(sesi));
+  daftar('penugasan', () => renderPenugasan(sesi));
+  daftar('siswa', () => renderSiswa(sesi));
+  daftar('naikkelas', () => renderNaikKelas(sesi));
+  daftar('mutasi', () => renderMutasi(sesi));
   daftar('kedepan', (params) => renderKedepan(params.join(' ') || 'Halaman'));
 }
 
