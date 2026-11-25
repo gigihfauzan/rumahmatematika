@@ -15,6 +15,14 @@ import { renderPenugasan } from './pages/penugasan.js';
 import { renderSiswa } from './pages/siswa.js';
 import { renderNaikKelas } from './pages/naikkelas.js';
 import { renderMutasi } from './pages/mutasi.js';
+// Halaman Tahap 3A + 3B (kegiatan, peserta, panel, input nilai, progres, impor).
+import { renderKegiatan } from './pages/kegiatan.js';
+import { renderPesertaKegiatan } from './pages/peserta.js';
+import { renderPanelSpn } from './pages/panel-spv.js';
+import { renderTugasGuru } from './pages/tugas-guru.js';
+import { renderInputNilai } from './pages/input-nilai.js';
+import { renderProgres } from './pages/progres.js';
+import { renderImporNilai } from './pages/impor-nilai.js';
 
 let state = { pengaturan: null };
 
@@ -205,16 +213,17 @@ const MENU = [
     { judul: 'Backup', ikon: 'database-backup', hash: '#/kedepan/Backup', kedepan: true }
   ]},
   { grup: 'Standar Penilaian', peran: 'standar_penilaian', item: [
-    { judul: 'Kegiatan', ikon: 'calendar-days', hash: '#/kedepan/Kegiatan', kedepan: true },
-    { judul: 'Progres', ikon: 'activity', hash: '#/kedepan/Progres', kedepan: true },
-    { judul: 'Input Nilai', ikon: 'pen-line', hash: '#/kedepan/Input Nilai', kedepan: true },
+    { judul: 'Panel SPN', ikon: 'gauge', hash: '#/panel' },
+    { judul: 'Kegiatan', ikon: 'calendar-days', hash: '#/kegiatan' },
+    { judul: 'Progres', ikon: 'activity', hash: '#/progres' },
+    { judul: 'Impor Nilai', ikon: 'upload', hash: '#/impor-nilai' },
     { judul: 'Laporan', ikon: 'file-text', hash: '#/kedepan/Laporan', kedepan: true }
   ]},
   { grup: 'Guru', peran: 'guru', item: [
-    { judul: 'Tugas Mengajar', ikon: 'chalkboard', hash: '#/kedepan/Tugas Mengajar', kedepan: true }
+    { judul: 'Tugas Mengajar', ikon: 'chalkboard', hash: '#/tugas-guru' }
   ]},
   { grup: 'Kepala Sekolah', peran: 'kepsek', item: [
-    { judul: 'Pemantauan', ikon: 'bar-chart-3', hash: '#/kedepan/Pemantauan', kedepan: true }
+    { judul: 'Pemantauan', ikon: 'bar-chart-3', hash: '#/progres' }
   ]}
 ];
 
@@ -340,6 +349,14 @@ function daftarkanRute(sesi) {
   daftar('siswa', () => renderSiswa(sesi));
   daftar('naikkelas', () => renderNaikKelas(sesi));
   daftar('mutasi', () => renderMutasi(sesi));
+  // Tahap 3A + 3B.
+  daftar('kegiatan', () => renderKegiatan(sesi));
+  daftar('peserta', (params) => renderPesertaKegiatan(sesi, params));
+  daftar('panel', () => renderPanelSpn(sesi));
+  daftar('tugas-guru', () => renderTugasGuru(sesi));
+  daftar('input-nilai', (params) => renderInputNilai(sesi, params));
+  daftar('progres', () => renderProgres(sesi));
+  daftar('impor-nilai', () => renderImporNilai(sesi));
   daftar('kedepan', (params) => renderKedepan(params.join(' ') || 'Halaman'));
 }
 
@@ -349,17 +366,17 @@ function renderBeranda(sesi) {
   const main = document.getElementById('main');
   const kartu = [];
   if (boleh(sesi.peran, 'guru')) {
-    kartu.push(kartuBeranda('Tugas Mengajar Saya', 'chalkboard', 'Daftar mapel & kelas yang ditugaskan kepada Anda.', true));
+    kartu.push(kartuBeranda('Tugas Mengajar Saya', 'chalkboard', 'Daftar mapel & kelas yang ditugaskan kepada Anda.', false, '#/tugas-guru'));
     kartu.push(kartuBeranda('Kelas Perwalian', 'users-round', 'Ringkasan kelas perwalian Anda.', true));
   }
   if (boleh(sesi.peran, 'standar_penilaian')) {
-    kartu.push(kartuBeranda('Panel Standar Penilaian', 'gauge', 'Kelola kegiatan, progres, dan laporan penilaian.', true));
+    kartu.push(kartuBeranda('Panel Standar Penilaian', 'gauge', 'Kelola kegiatan, progres, dan laporan penilaian.', false, '#/panel'));
   }
   if (boleh(sesi.peran, 'admin')) {
     kartu.push(kartuBeranda('Administrasi', 'settings', 'Pengaturan sekolah, akun, data master, dan backup.', false, '#/pengaturan'));
   }
   if (boleh(sesi.peran, 'kepsek')) {
-    kartu.push(kartuBeranda('Pemantauan Kepala Sekolah', 'bar-chart-3', 'Pantau capaian per kelas, paralel, dan kegiatan.', true));
+    kartu.push(kartuBeranda('Pemantauan Kepala Sekolah', 'bar-chart-3', 'Pantau capaian per kelas, paralel, dan kegiatan.', false, '#/progres'));
   }
   main.innerHTML = `
     <h1 class="page-judul">Beranda</h1>

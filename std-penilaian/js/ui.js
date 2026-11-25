@@ -48,8 +48,9 @@ export function pesanGalat(err) {
   if (!err) return 'Galat tidak diketahui.';
   if (err.kode === 'SESI') return 'Sesi berakhir. Silakan login lagi.';
   if (err.kode === 'AKSES_DITOLAK') return 'Anda tidak berhak melakukan aksi ini.';
-  if (err.kode === 'KREDENSIAL') return 'Username atau password salah.';
+  if (err.kode === 'KREDENSIAL') return 'NIP/Username atau password salah.';
   if (err.kode === 'THROTTLE') return err.pesan;
+  if (err.kode === 'VERSI_USANG') return 'Isian usang: ' + err.pesan;
   if (err.kode === 'JARINGAN') return 'Gagal menghubungi server. Periksa koneksi atau deploy web app.';
   if (err.kode === 'KONFIGURASI') return err.pesan;
   return err.pesan || err.message || 'Galat tidak diketahui.';
