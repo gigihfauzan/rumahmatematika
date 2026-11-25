@@ -1,0 +1,85 @@
+/* tema.css — Token tema berbasis variabel CSS.
+   Tema: light_blue (bawaan), teal, indigo, slate, dark.
+   Kontras memenuhi WCAG AA pada teks utama. */
+
+:root,
+[data-tema="light_blue"] {
+  --bg: #eef4fb;
+  --permukaan: #ffffff;
+  --permukaan-2: #f5f9fd;
+  --border: #dde7f1;
+  --teks: #0f1b2d;
+  --teks-ringan: #5b6b80;
+  --primer: #0369a1;        /* biru tua, AA pada putih */
+  --primer-fg: #ffffff;
+  --primer-hover: #075985;
+  --aksen: #0ea5e9;
+  --ok: #15803d;
+  --ok-bg: #dcfce7;
+  --err: #b91c1c;
+  --err-bg: #fee2e2;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --bayangan: 0 1px 2px rgba(15, 27, 45, .06), 0 2px 8px rgba(15, 27, 45, .05);
+  --radius: 10px;
+  --radius-sm: 7px;
+}
+
+[data-tema="teal"] {
+  --bg: #f0fdfa;
+  --permukaan: #ffffff;
+  --permukaan-2: #f3fbf9;
+  --border: #cdeee6;
+  --teks: #0f2a26;
+  --teks-ringan: #4b635d;
+  --primer: #0f766e;
+  --primer-fg: #ffffff;
+  --primer-hover: #115e59;
+  --aksen: #14b8a6;
+}
+
+[data-tema="indigo"] {
+  --bg: #eef2ff;
+  --permukaan: #ffffff;
+  --permukaan-2: #f5f7ff;
+  --border: #dfe3ff;
+  --teks: #16182e;
+  --teks-ringan: #525876;
+  --primer: #4338ca;
+  --primer-fg: #ffffff;
+  --primer-hover: #3730a3;
+  --aksen: #6366f1;
+}
+
+[data-tema="slate"] {
+  --bg: #f1f5f9;
+  --permukaan: #ffffff;
+  --permukaan-2: #f8fafc;
+  --border: #dde3ea;
+  --teks: #0f172a;
+  --teks-ringan: #52617a;
+  --primer: #334155;
+  --primer-fg: #ffffff;
+  --primer-hover: #1e293b;
+  --aksen: #64748b;
+}
+
+[data-tema="dark"] {
+  --bg: #0f172a;
+  --permukaan: #1e293b;
+  --permukaan-2: #172033;
+  --border: #334155;
+  --teks: #e2e8f0;
+  --teks-ringan: #94a3b8;
+  --primer: #38bdf8;
+  --primer-fg: #0b1220;
+  --primer-hover: #0ea5e9;
+  --aksen: #38bdf8;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #3b1212;
+  --warn: #fbbf24;
+  --warn-bg: #3a2a06;
+  --bayangan: 0 1px 2px rgba(0, 0, 0, .4), 0 2px 10px rgba(0, 0, 0, .35);
+}
