@@ -240,6 +240,9 @@ async function jalankan(aksi) {
     let hasil;
     if (aksi === 'ping') {
       hasil = await panggilGet(url);
+    } else if (aksi === 'ping_post') {
+      // Tombol "Ping (POST)": kirim aksi 'ping' melalui POST (bukan 'ping_post').
+      hasil = await panggilPost(url, { aksi: 'ping' });
     } else {
       hasil = await panggilPost(url, { aksi: aksi });
     }
