@@ -49,9 +49,12 @@ export function pesanGalat(err) {
   if (err.kode === 'SESI') return 'Sesi berakhir. Silakan login lagi.';
   if (err.kode === 'AKSES_DITOLAK') return 'Anda tidak berhak melakukan aksi ini.';
   if (err.kode === 'KREDENSIAL') return 'NIP/Username atau password salah.';
-  if (err.kode === 'THROTTLE') return err.pesan;
-  if (err.kode === 'VERSI_USANG') return 'Isian usang: ' + err.pesan;
+  if (err.kode === 'THROTTLE') return err.pesan || 'Terlalu banyak percobaan. Coba lagi nanti.';
+  if (err.kode === 'VERSI_USANG') return 'Isian usang: ' + (err.pesan || 'muat ulang tabel.');
   if (err.kode === 'JARINGAN') return 'Gagal menghubungi server. Periksa koneksi atau deploy web app.';
-  if (err.kode === 'KONFIGURASI') return err.pesan;
+  if (err.kode === 'KONFIGURASI') return err.pesan || 'Konfigurasi bermasalah.';
+  if (err.kode === 'VALIDASI') return err.pesan || 'Data tidak valid.';
+  if (err.kode === 'AKSI') return err.pesan || 'Aksi tidak dikenal.';
+  if (err.kode === 'JSON') return 'Permintaan bukan JSON valid.';
   return err.pesan || err.message || 'Galat tidak diketahui.';
 }
