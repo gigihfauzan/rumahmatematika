@@ -271,7 +271,7 @@ function renderLangkah3() {
   // Pencocokan otomatis dijalankan saat masuk langkah ini.
   return `<div class="kartu">
     <div class="kartu-title">Memuat peserta & mencocokkan</div>
-    <div class="spin spin-penuh">${spin('Memproses pencocokan...')}</div>
+    <div style="display:flex;justify-content:center;padding:1.5rem">${spin('Memproses pencocokan...')}</div>
   </div>`;
 }
 

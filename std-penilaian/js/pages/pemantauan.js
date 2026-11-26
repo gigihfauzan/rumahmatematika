@@ -8,14 +8,16 @@
 //   saja; server memaksa data terbatas ke kelas perwalian.
 // - Lembar Paralel & Grafik hanya ditampilkan jika boleh(peran,'kepsek').
 //
-// Catatan: tidak ada pustaka selain Chart.js (CDN dipatok). Token diambil dari
-// localStorage. escape() dipakai untuk semua data dinamis; renderIkon() dipanggil
-// setelah setiap innerHTML.
-import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm';
+// Catatan: tidak ada pustaka selain Chart.js (UMD via <script> di index.html,
+// versi dipatok 4.4.1). Token diambil dari localStorage. escape() dipakai untuk
+// semua data dinamis; renderIkon() dipanggil setelah setiap innerHTML.
 import { renderIkon, escape, spin, pesanGalat } from '../ui.js';
 import { boleh } from '../auth.js';
 import { panggil } from '../api.js';
 import { chip } from '../komponen.js';
+
+// Chart.js dimuat via <script> UMD di index.html → window.Chart.
+const Chart = (typeof window !== 'undefined') ? window.Chart : null;
 
 // =========================== STATE ===========================
 
@@ -966,6 +968,13 @@ function renderHeatmap(perbandRombel, slot, waliTerbatas) {
 
 async function renderGrafik() {
   const wadah = document.getElementById('pantau-konten');
+  if (!Chart) {
+    wadah.innerHTML = `<div class="kosong"><i data-lucide="alert-triangle"></i>
+      <h3>Pustaka grafik tidak tersedia</h3>
+      <p>Chart.js gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.</p></div>`;
+    renderIkon();
+    return;
+  }
   wadah.innerHTML = spin('Memuat grafik...');
 
   let data;

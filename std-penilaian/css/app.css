@@ -83,7 +83,7 @@ a:hover { color: var(--primer-hover); }
   border-top-color: var(--primer); border-radius: 50%;
   animation: putar .8s linear infinite;
 }
-.spin-penuh { min-height: 60vh; justify-content: center; align-items: center; }
+.spin-penuh { display: flex; width: 100%; min-height: 100vh; justify-content: center; align-items: center; text-align: center; }
 @keyframes putar { to { transform: rotate(360deg); } }
 
 /* === Toast === */
