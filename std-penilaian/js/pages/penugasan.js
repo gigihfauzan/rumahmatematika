@@ -24,6 +24,21 @@ const state = {
   barisImpor: []
 };
 
+/** Daftar varian unik berdasarkan NAMA (tampil satu kali, bukan per tingkat).
+ *  Server yang akan memilih id_varian yang benar sesuai tingkat kelas. */
+function varianUnikUntukDropdown() {
+  const seen = {};
+  const hasil = [];
+  (state.varian || []).forEach(v => {
+    const nama = String(v.nama || '').trim();
+    if (!nama || seen[nama]) return;
+    seen[nama] = true;
+    hasil.push({ nama: nama });
+  });
+  hasil.sort((a, b) => a.nama < b.nama ? -1 : 1);
+  return hasil;
+}
+
 // =========================== ENTRY ===========================
 
 export async function renderPenugasan(sesi) {
@@ -157,8 +172,9 @@ function renderIsi() {
         <div class="field"><label class="label" for="pilih-varian">Varian Mapel</label>
           <select class="select" id="pilih-varian">
             <option value="">— pilih varian —</option>
-            ${state.varian.map(v => `<option value="${escape(v.id_varian)}">${escape(v.nama)}</option>`).join('')}
-          </select></div>
+            ${varianUnikUntukDropdown().map(v => `<option value="${escape(v.nama)}">${escape(v.nama)}</option>`).join('')}
+          </select>
+          <div class="petunjuk">Varian otomatis disesuaikan dengan tingkat kelas yang dipilih.</div></div>
       </div>
       <div class="petunjuk" style="margin-bottom:.5rem">Centang kelas yang ditugaskan. Gunakan tombol cepat per tingkat.</div>
       <div id="matriks-kelas">${renderMatriks()}</div>
@@ -289,15 +305,15 @@ function pasangListener() {
 
 async function simpanPenugasan() {
   const idPengguna = document.getElementById('pilih-guru').value;
-  const idVarian = document.getElementById('pilih-varian').value;
+  const varianNama = document.getElementById('pilih-varian').value;
   const idKelas = Array.from(document.querySelectorAll('.cek-kelas:checked')).map(cb => cb.value);
-  if (!idPengguna || !idVarian) { toast('Pilih guru dan varian.', 'err'); return; }
+  if (!idPengguna || !varianNama) { toast('Pilih guru dan varian.', 'err'); return; }
   if (!idKelas.length) { toast('Pilih minimal satu kelas.', 'err'); return; }
   const btn = document.getElementById('btn-simpan-penugasan');
   btn.disabled = true; btn.innerHTML = spin('Menyimpan...');
   try {
     const d = await panggil('penugasan_simpan', {
-      id_ta: state.idTa, id_pengguna: idPengguna, id_varian: idVarian, id_kelas: idKelas
+      id_ta: state.idTa, id_pengguna: idPengguna, varian_nama: varianNama, id_kelas: idKelas
     }, state.token);
     toast(`${d.jumlah} penugasan ditambahkan.`, 'ok');
     // Reset centang.
