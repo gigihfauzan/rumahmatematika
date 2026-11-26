@@ -23,6 +23,8 @@ import { renderTugasGuru } from './pages/tugas-guru.js';
 import { renderInputNilai } from './pages/input-nilai.js';
 import { renderProgres } from './pages/progres.js';
 import { renderImporNilai } from './pages/impor-nilai.js';
+// Halaman Tahap 4: Pemantauan (lembar kelas, paralel, rekap, grafik, remedial).
+import { renderPemantauan } from './pages/pemantauan.js';
 
 let state = { pengaturan: null };
 
@@ -215,15 +217,18 @@ const MENU = [
   { grup: 'Standar Penilaian', peran: 'standar_penilaian', item: [
     { judul: 'Panel SPN', ikon: 'gauge', hash: '#/panel' },
     { judul: 'Kegiatan', ikon: 'calendar-days', hash: '#/kegiatan' },
-    { judul: 'Progres', ikon: 'activity', hash: '#/progres' },
+    { judul: 'Progres Input', ikon: 'activity', hash: '#/progres' },
+    { judul: 'Pemantauan', ikon: 'chart-bar', hash: '#/pemantauan' },
     { judul: 'Impor Nilai', ikon: 'upload', hash: '#/impor-nilai' },
     { judul: 'Laporan', ikon: 'file-text', hash: '#/kedepan/Laporan', kedepan: true }
   ]},
   { grup: 'Guru', peran: 'guru', item: [
-    { judul: 'Tugas Mengajar', ikon: 'presentation', hash: '#/tugas-guru' }
+    { judul: 'Tugas Mengajar', ikon: 'presentation', hash: '#/tugas-guru' },
+    { judul: 'Lembar Kelas', ikon: 'clipboard-list', hash: '#/pemantauan' }
   ]},
   { grup: 'Kepala Sekolah', peran: 'kepsek', item: [
-    { judul: 'Pemantauan', ikon: 'chart-bar', hash: '#/progres' }
+    { judul: 'Pemantauan', ikon: 'chart-bar', hash: '#/pemantauan' },
+    { judul: 'Progres Input', ikon: 'activity', hash: '#/progres' }
   ]}
 ];
 
@@ -357,6 +362,8 @@ function daftarkanRute(sesi) {
   daftar('input-nilai', (params) => renderInputNilai(sesi, params));
   daftar('progres', () => renderProgres(sesi));
   daftar('impor-nilai', () => renderImporNilai(sesi));
+  // Tahap 4: Pemantauan.
+  daftar('pemantauan', () => renderPemantauan(sesi));
   daftar('kedepan', (params) => renderKedepan(params.join(' ') || 'Halaman'));
 }
 

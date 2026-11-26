@@ -410,3 +410,107 @@ tr.baris-klik:focus-visible { outline: 2px solid var(--primer); outline-offset: 
 /* Tabel nilai invalid (merah) */
 .tabel td.sel-galat, .tabel th.sel-galat { background: var(--err-bg); color: var(--err); }
 
+/* === Tahap 4: Pemantauan === */
+
+/* Tab bar */
+.tab-bar {
+  display: flex; gap: .15rem; flex-wrap: wrap; border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem; padding: 0 .1rem;
+}
+.tab-item {
+  background: transparent; border: none; cursor: pointer;
+  padding: .55rem .9rem; font-size: .88rem; color: var(--teks-ringan);
+  border-bottom: 2px solid transparent; transition: color .15s, border-color .15s, background .15s;
+  display: inline-flex; align-items: center; gap: .4rem; font-family: inherit;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+.tab-item:hover { color: var(--teks); background: var(--permukaan-2); }
+.tab-item.aktif { color: var(--primer); border-bottom-color: var(--primer); font-weight: 600; background: var(--permukaan-2); }
+.tab-item svg.lucide { width: 16px; height: 16px; }
+
+/* Checkbox bertanda (inline) */
+.cek-kotak { display: inline-flex; align-items: center; gap: .45rem; font-size: .9rem; color: var(--teks); cursor: pointer; padding: .55rem .7rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--permukaan); }
+.cek-kotak input { width: 16px; height: 16px; cursor: pointer; }
+
+/* Sticky kolom tabel lembar */
+.tabel-lembar-bungkus { max-height: 70vh; }
+.tabel-lembar { font-size: .82rem; }
+.tabel .sticky-no {
+  position: sticky; left: 0; z-index: 2; background: var(--permukaan);
+  text-align: center; width: 42px; min-width: 42px;
+}
+.tabel .sticky-nama {
+  position: sticky; left: 42px; z-index: 2; background: var(--permukaan);
+  min-width: 170px;
+}
+.tabel thead th.sticky-no, .tabel thead th.sticky-nama { z-index: 5; background: var(--permukaan-2); }
+.tabel tfoot td.sticky-no, .tabel tfoot td.sticky-nama { z-index: 2; background: var(--permukaan-2); }
+.tabel tbody tr:hover .sticky-no, .tabel tbody tr:hover .sticky-nama { background: var(--permukaan-2); }
+.tabel .angka { text-align: right; font-variant-numeric: tabular-nums; }
+.tabel .th-no { color: var(--teks-ringan); font-size: .8rem; }
+.tabel .td-nama { min-width: 170px; }
+
+/* Sel nilai lembar */
+.tabel td.sel-nilai { text-align: center; font-variant-numeric: tabular-nums; }
+.tabel td.sel-nilai .nilai { font-weight: 600; }
+.tabel td.sel-nilai-kosong { color: var(--teks-ringan); }
+.tabel td.sel-di-bawah-kktp {
+  background: var(--warn-bg); color: var(--warn);
+}
+.tabel td.sel-di-bawah-kktp .nilai { font-weight: 700; }
+
+/* Tag varian (huruf kecil inisial kata) */
+.tabel .varian-tag {
+  display: inline-block; margin-left: .2rem; padding: 0 .3rem; border-radius: 3px;
+  font-size: .64rem; font-weight: 700; color: var(--teks-ringan);
+  background: var(--permukaan-2); border: 1px solid var(--border);
+  vertical-align: middle; letter-spacing: .02em;
+}
+.varian-mark { color: var(--aksen); font-weight: 700; font-size: .8rem; margin-left: .1rem; }
+
+/* Baris statistik (tfoot) tabel lembar */
+.tabel tfoot .baris-stat td { background: var(--permukaan-2); font-weight: 600; border-top: 1px solid var(--border); }
+.tabel tfoot .baris-stat .sticky-no, .tabel tfoot .baris-stat .sticky-nama { background: var(--permukaan-2); }
+.tabel tfoot .baris-stat-utama td { border-top: 2px solid var(--border); }
+.tabel tfoot .baris-stat-sub td { font-weight: 400; color: var(--teks-ringan); font-size: .78rem; font-style: italic; }
+.tabel tfoot .baris-stat-akhir td { border-bottom: none; }
+.baris-stat-judul { font-size: .76rem; color: var(--teks-ringan); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+
+/* Header lembar (info kelas, wali, paraf) */
+.lembar-header { display: grid; gap: .75rem; grid-template-columns: 1fr; margin-bottom: 1rem; }
+@media (min-width: 720px) { .lembar-header { grid-template-columns: 2fr 1fr; } }
+.lembar-meta { display: flex; flex-direction: column; gap: .35rem; font-size: .85rem; color: var(--teks-ringan); }
+.lembar-meta strong { color: var(--teks); }
+.lembar-meta svg.lucide { width: 14px; height: 14px; color: var(--teks-ringan); vertical-align: middle; }
+.lembar-meta span { display: inline-flex; align-items: center; gap: .35rem; }
+.lembar-kktp { display: flex; flex-wrap: wrap; gap: .25rem; }
+.chip-kktp {
+  font-size: .72rem; padding: .15rem .45rem; border-radius: 4px;
+  background: var(--permukaan-2); border: 1px solid var(--border); color: var(--teks-ringan);
+  font-variant-numeric: tabular-nums;
+}
+.lembar-paraf { text-align: right; display: flex; flex-direction: column; justify-content: flex-end; padding: 1rem 1.1rem; }
+.lembar-paraf-garis { margin-top: .5rem; border-top: 1px solid var(--teks-ringan); padding-top: .15rem; display: inline-block; min-width: 160px; font-size: .78rem; color: var(--teks-ringan); }
+.lembar-kelas-stat { display: inline-flex; flex-direction: column; gap: .15rem; padding: .55rem .7rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--permukaan); }
+.lembar-kelas-stat strong { font-size: 1rem; }
+.lembar-kelas-stat .petunjuk { margin: 0; font-size: .72rem; }
+
+/* Heatmap (perbandingan rombel × slot) */
+.heatmap-bungkus-blok { margin-bottom: 1rem; }
+.heatmap-bungkus-blok:last-child { margin-bottom: 0; }
+.heatmap-bungkus { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--permukaan); }
+.heatmap { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.heatmap th, .heatmap td { border: 1px solid var(--border); padding: .45rem .55rem; text-align: center; min-width: 64px; }
+.heatmap thead th { background: var(--permukaan-2); color: var(--teks-ringan); font-weight: 600; white-space: nowrap; }
+.heatmap .heatmap-row-head { background: var(--permukaan-2); color: var(--teks); text-align: left; white-space: nowrap; font-weight: 600; }
+.heatmap-sel { font-variant-numeric: tabular-nums; font-weight: 600; }
+.heatmap-sel-kosong { color: var(--teks-ringan); font-weight: 400; }
+
+/* Wadah canvas Chart.js */
+.chart-wadah {
+  position: relative; height: 320px; width: 100%;
+  background: var(--permukaan); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .75rem; box-sizing: border-box;
+}
+.chart-wadah canvas { max-width: 100%; }
+
