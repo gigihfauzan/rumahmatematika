@@ -194,7 +194,7 @@ async function muatSetelahLogin() {
 
 const MENU = [
   { grup: 'Utama', peran: null, item: [
-    { judul: 'Beranda', ikon: 'home', hash: '#/beranda' },
+    { judul: 'Beranda', ikon: 'house', hash: '#/beranda' },
     { judul: 'Dasbor', ikon: 'layout-dashboard', hash: '#/dasbor' }
   ]},
   // Data Master: admin menulis, standar penilaian lihat.
@@ -208,7 +208,7 @@ const MENU = [
     { judul: 'Pengaturan Sekolah', ikon: 'settings', hash: '#/pengaturan' },
     { judul: 'Tahun Ajaran', ikon: 'calendar', hash: '#/ta' },
     { judul: 'Akun Pengguna', ikon: 'users', hash: '#/pengguna' },
-    { judul: 'Naik Kelas', ikon: 'arrow-up-circle', hash: '#/naikkelas' },
+    { judul: 'Naik Kelas', ikon: 'circle-arrow-up', hash: '#/naikkelas' },
     { judul: 'Mutasi Siswa', ikon: 'user-plus', hash: '#/mutasi' },
     { judul: 'Backup', ikon: 'database-backup', hash: '#/kedepan/Backup', kedepan: true }
   ]},
@@ -220,10 +220,10 @@ const MENU = [
     { judul: 'Laporan', ikon: 'file-text', hash: '#/kedepan/Laporan', kedepan: true }
   ]},
   { grup: 'Guru', peran: 'guru', item: [
-    { judul: 'Tugas Mengajar', ikon: 'chalkboard', hash: '#/tugas-guru' }
+    { judul: 'Tugas Mengajar', ikon: 'presentation', hash: '#/tugas-guru' }
   ]},
   { grup: 'Kepala Sekolah', peran: 'kepsek', item: [
-    { judul: 'Pemantauan', ikon: 'bar-chart-3', hash: '#/progres' }
+    { judul: 'Pemantauan', ikon: 'chart-bar', hash: '#/progres' }
   ]}
 ];
 
@@ -366,7 +366,7 @@ function renderBeranda(sesi) {
   const main = document.getElementById('main');
   const kartu = [];
   if (boleh(sesi.peran, 'guru')) {
-    kartu.push(kartuBeranda('Tugas Mengajar Saya', 'chalkboard', 'Daftar mapel & kelas yang ditugaskan kepada Anda.', false, '#/tugas-guru'));
+    kartu.push(kartuBeranda('Tugas Mengajar Saya', 'presentation', 'Daftar mapel & kelas yang ditugaskan kepada Anda.', false, '#/tugas-guru'));
     kartu.push(kartuBeranda('Kelas Perwalian', 'users-round', 'Ringkasan kelas perwalian Anda.', true));
   }
   if (boleh(sesi.peran, 'standar_penilaian')) {
@@ -376,7 +376,7 @@ function renderBeranda(sesi) {
     kartu.push(kartuBeranda('Administrasi', 'settings', 'Pengaturan sekolah, akun, data master, dan backup.', false, '#/pengaturan'));
   }
   if (boleh(sesi.peran, 'kepsek')) {
-    kartu.push(kartuBeranda('Pemantauan Kepala Sekolah', 'bar-chart-3', 'Pantau capaian per kelas, paralel, dan kegiatan.', false, '#/progres'));
+    kartu.push(kartuBeranda('Pemantauan Kepala Sekolah', 'chart-bar', 'Pantau capaian per kelas, paralel, dan kegiatan.', false, '#/progres'));
   }
   main.innerHTML = `
     <h1 class="page-judul">Beranda</h1>
