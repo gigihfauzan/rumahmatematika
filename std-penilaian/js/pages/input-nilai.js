@@ -222,9 +222,10 @@ function renderIsi() {
   if (!wadah) return;
 
   if (!peserta.length) {
+    const pesanKosong = state.data.peserta_kosong_pesan || 'Tidak ada siswa efektif untuk kegiatan/kelas/varian ini.';
     wadah.innerHTML = `<div class="kosong"><i data-lucide="users-x"></i>
       <h3>Tidak ada peserta</h3>
-      <p>Tidak ada siswa efektif untuk kegiatan/kelas/varian ini.</p></div>`;
+      <p>${escape(pesanKosong)}</p></div>`;
     renderStatistik();
     return;
   }
