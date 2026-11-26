@@ -514,3 +514,26 @@ tr.baris-klik:focus-visible { outline: 2px solid var(--primer); outline-offset: 
 }
 .chart-wadah canvas { max-width: 100%; }
 
+/* === Tahap 5: Laporan === */
+/* Grid checkbox untuk opsi unduh & pilihan kelas/siswa. */
+.cek-kotak-grid {
+  display: grid; gap: .5rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.cek-kotak-grid .cek-kotak { padding: .35rem .55rem; font-size: .85rem; }
+
+/* Pratinjau kop laporan di dalam modal. */
+.kop-pratinjau-laporan {
+  display: flex; gap: 1rem; align-items: flex-start; padding: .75rem;
+  background: var(--permukaan); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.kop-pratinjau-laporan .kop-logo { width: 56px; height: 56px; object-fit: contain; flex-shrink: 0; }
+.kop-pratinjau-laporan .kop-teks { flex: 1; }
+.kop-pratinjau-laporan .kop-instansi { font-size: .72rem; color: var(--teks-ringan); text-transform: uppercase; letter-spacing: .04em; }
+.kop-pratinjau-laporan .kop-sekolah { font-size: 1rem; }
+.kop-pratinjau-laporan .kop-baris { font-size: .76rem; color: var(--teks-ringan); }
+
+/* Modal besar: pastikan tinggi minimum pada layar lebar. */
+.modal-bingkai.besar { max-width: 920px; width: 92vw; max-height: 92vh; }
+.modal-bingkai.besar .modal-isi { max-height: 70vh; }
+
