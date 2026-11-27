@@ -151,7 +151,9 @@ export async function renderPemantauan(sesi) {
   state.sesi = sesi;
   state.token = localStorage.getItem('enilai_token');
 
-  document.getElementById('topbar-judul').textContent = 'Pemantauan';
+  // Judul kontekstual: wali (guru murni) melihat "Lembar Kelas", lainnya "Pemantauan".
+  const adalahWali = boleh(sesi.peran, 'guru') && !boleh(sesi.peran, 'standar_penilaian') && !boleh(sesi.peran, 'kepsek');
+  document.getElementById('topbar-judul').textContent = adalahWali ? 'Lembar Kelas' : 'Pemantauan';
   const main = document.getElementById('main');
 
   // Hak dasar: spn/kepsek/admin atau guru (wali). Guru murni tanpa perwalian

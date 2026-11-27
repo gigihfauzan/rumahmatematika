@@ -56,5 +56,6 @@ export function pesanGalat(err) {
   if (err.kode === 'VALIDASI') return err.pesan || 'Data tidak valid.';
   if (err.kode === 'AKSI') return err.pesan || 'Aksi tidak dikenal.';
   if (err.kode === 'JSON') return 'Permintaan bukan JSON valid.';
+  if (err.kode === 'MAINTENANCE') return err.pesan || 'Sistem dalam mode pemeliharaan. Coba beberapa saat lagi.';
   return err.pesan || err.message || 'Galat tidak diketahui.';
 }

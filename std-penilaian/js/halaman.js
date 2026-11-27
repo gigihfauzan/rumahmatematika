@@ -25,8 +25,16 @@ import { renderProgres } from './pages/progres.js';
 import { renderImporNilai } from './pages/impor-nilai.js';
 // Halaman Tahap 4: Pemantauan (lembar kelas, paralel, rekap, grafik, remedial).
 import { renderPemantauan } from './pages/pemantauan.js';
-// Halaman Tahap 5A & 5B: Laporan (unduh PDF/Excel, hasil per siswa, grafik).
+// Halaman Tahap 5: Laporan unduh.
 import { renderLaporan } from './pages/laporan.js';
+// Halaman Tahap 6: Arsip, backup, log, sampah, profil siswa, panduan, sistem.
+import { renderArsip } from './pages/arsip.js';
+import { renderBackup } from './pages/backup.js';
+import { renderLog } from './pages/log.js';
+import { renderSampah } from './pages/sampah.js';
+import { renderProfilSiswa } from './pages/profil-siswa.js';
+import { renderPanduan } from './pages/panduan.js';
+import { renderSistem } from './pages/sistem.js';
 
 let state = { pengaturan: null };
 
@@ -199,14 +207,18 @@ async function muatSetelahLogin() {
 const MENU = [
   { grup: 'Utama', peran: null, item: [
     { judul: 'Beranda', ikon: 'house', hash: '#/beranda' },
-    { judul: 'Dasbor', ikon: 'layout-dashboard', hash: '#/dasbor' }
+    { judul: 'Dasbor', ikon: 'layout-dashboard', hash: '#/dasbor' },
+    { judul: 'Panduan', ikon: 'circle-help', hash: '#/panduan' }
   ]},
   // Data Master: admin menulis, standar penilaian lihat.
   { grup: 'Data Master', peran: 'standar_penilaian', item: [
     { judul: 'Kelas & Rombel', ikon: 'school', hash: '#/kelas' },
     { judul: 'Mapel & Slot', ikon: 'book-open', hash: '#/mapel' },
     { judul: 'Penugasan', ikon: 'clipboard-list', hash: '#/penugasan' },
-    { judul: 'Data Siswa', ikon: 'graduation-cap', hash: '#/siswa' }
+    { judul: 'Data Siswa', ikon: 'graduation-cap', hash: '#/siswa' },
+    { judul: 'Profil Siswa', ikon: 'user-search', hash: '#/profil-siswa' },
+    { judul: 'Log Aktivitas', ikon: 'scroll-text', hash: '#/log' },
+    { judul: 'Tempat Sampah', ikon: 'trash-2', hash: '#/sampah' }
   ]},
   { grup: 'Administrasi', peran: 'admin', item: [
     { judul: 'Pengaturan Sekolah', ikon: 'settings', hash: '#/pengaturan' },
@@ -214,7 +226,9 @@ const MENU = [
     { judul: 'Akun Pengguna', ikon: 'users', hash: '#/pengguna' },
     { judul: 'Naik Kelas', ikon: 'circle-arrow-up', hash: '#/naikkelas' },
     { judul: 'Mutasi Siswa', ikon: 'user-plus', hash: '#/mutasi' },
-    { judul: 'Backup', ikon: 'database-backup', hash: '#/kedepan/Backup', kedepan: true }
+    { judul: 'Backup', ikon: 'database-backup', hash: '#/backup' },
+    { judul: 'Arsip', ikon: 'archive', hash: '#/arsip' },
+    { judul: 'Pemeriksaan Sistem', ikon: 'heart-pulse', hash: '#/sistem' }
   ]},
   { grup: 'Standar Penilaian', peran: 'standar_penilaian', item: [
     { judul: 'Panel SPN', ikon: 'gauge', hash: '#/panel' },
@@ -370,6 +384,14 @@ function daftarkanRute(sesi) {
   daftar('pemantauan', () => renderPemantauan(sesi));
   // Tahap 5A & 5B: Laporan.
   daftar('laporan', () => renderLaporan(sesi));
+  // Tahap 6: Arsip, backup, log, sampah, profil siswa, panduan, sistem.
+  daftar('arsip', () => renderArsip(sesi));
+  daftar('backup', () => renderBackup(sesi));
+  daftar('log', () => renderLog(sesi));
+  daftar('sampah', () => renderSampah(sesi));
+  daftar('profil-siswa', () => renderProfilSiswa(sesi));
+  daftar('panduan', () => renderPanduan(sesi));
+  daftar('sistem', () => renderSistem(sesi));
   daftar('kedepan', (params) => renderKedepan(params.join(' ') || 'Halaman'));
 }
 
