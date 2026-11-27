@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uji Kelayakan E-Nilai</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 860px; margin: 1rem auto; padding: 0 1rem; color: #1b2733; }
+  h1 { font-size: 1.3rem; }
+  .tombol { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+  button { padding: .6rem .9rem; border: 0; border-radius: 6px; background: #1d6fb8; color: #fff; font-size: .95rem; cursor: pointer; }
+  button.alt { background: #455a6b; }
+  button:disabled { opacity: .5; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th, td { border: 1px solid #c9d3dc; padding: .4rem .5rem; text-align: left; vertical-align: top; }
+  th { background: #eaf2f9; }
+  .ok { color: #11693a; font-weight: 600; }
+  .gagal { color: #b3261e; font-weight: 600; }
+  pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-size: .8rem; }
+  .info { background: #f4f7fa; padding: .6rem .8rem; border-radius: 6px; font-size: .9rem; }
+</style>
+</head>
+<body>
+<h1>Uji Kelayakan E-Nilai (Tahap 0)</h1>
+<p class="info">Alamat web app dan token diisi pada bagian <code>KONFIGURASI</code> di dalam file ini.</p>
+
+<div class="tombol">
+  <button data-aksi="ping">(a) Ping</button>
+  <button data-aksi="tulis_baca">(b) Tulis &amp; baca Sheet</button>
+  <button data-aksi="buka_kedua">(c) Buka Spreadsheet kedua</button>
+  <button data-aksi="buat_file">(d) Buat file di Drive</button>
+  <button id="btnLock" class="alt">(e) Uji Lock (2 permintaan serentak)</button>
+  <button id="btnSemua" class="alt">Jalankan semua berurutan</button>
+</div>
+
+<table>
+  <thead><tr><th>Waktu</th><th>Aksi</th><th>Hasil</th><th>Total (ms)</th><th>Server (ms)</th><th>Rincian</th></tr></thead>
+  <tbody id="hasil"></tbody>
+</table>
+
+<script>
+// ===== KONFIGURASI =====
+const URL_WEB_APP = 'GANTI_DENGAN_URL_WEB_APP_YANG_BERAKHIRAN_/exec';
+const TOKEN_UJI   = 'uji-ganti-saya-123'; // harus sama dengan di Code.gs
+// =======================
+
+const badan = document.getElementById('hasil');
+
+// Memanggil web app: POST bertipe text/plain agar tidak memicu preflight CORS
+async function panggil(aksi, data = {}) {
+  const t0 = performance.now();
+  const hasil = { aksi, ok: false, total: 0, server: '-', rincian: '' };
+  try {
+    const resp = await fetch(URL_WEB_APP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ aksi, token: TOKEN_UJI, data })
+    });
+    const teks = await resp.text();
+    let balasan;
+    try { balasan = JSON.parse(teks); }
+    catch (_) {
+      // Balasan bukan JSON: biasanya halaman login Google atau halaman galat
+      hasil.rincian = 'Balasan bukan JSON (status ' + resp.status + '). Kemungkinan akses web app belum "Siapa saja" '
+        + 'atau skrip galat. Awal balasan: ' + teks.slice(0, 120).replace(/\s+/g, ' ');
+      return hasil;
+    }
+    hasil.server = balasan.ms_server ?? '-';
+    if (balasan.ok) { hasil.ok = true; hasil.rincian = JSON.stringify(balasan.data); }
+    else { hasil.rincian = '[' + balasan.error.kode + '] ' + balasan.error.pesan; }
+  } catch (err) {
+    // "Failed to fetch" = diblokir CORS / redirect login / jaringan
+    hasil.rincian = 'Permintaan gagal sebelum balasan diterima (' + err.message + '). Kemungkinan: URL salah, '
+      + 'bukan akses "Siapa saja" (diarahkan ke login Google -> tampak sebagai galat CORS), atau tidak ada internet.';
+  }
+  hasil.total = Math.round(performance.now() - t0);
+  return hasil;
+}
+
+// Menambah satu baris ke tabel hasil (memakai textContent agar aman)
+function tampilkan(h) {
+  const tr = document.createElement('tr');
+  const sel = (teks, kelas) => { const td = document.createElement('td'); td.textContent = teks; if (kelas) td.className = kelas; tr.appendChild(td); return td; };
+  sel(new Date().toLocaleTimeString('id-ID'));
+  sel(h.aksi);
+  sel(h.ok ? 'BERHASIL' : 'GAGAL', h.ok ? 'ok' : 'gagal');
+  sel(h.total);
+  sel(h.server);
+  const td = sel(''); const pre = document.createElement('pre'); pre.textContent = h.rincian; td.appendChild(pre);
+  badan.prepend(tr);
+}
+
+async function jalankan(aksi, data) { tampilkan(await panggil(aksi, data)); }
+
+document.querySelectorAll('button[data-aksi]').forEach(b => {
+  b.onclick = async () => { b.disabled = true; await jalankan(b.dataset.aksi); b.disabled = false; };
+});
+
+// Uji Lock: dua permintaan dikirim bersamaan, yang kedua harus menunggu yang pertama
+document.getElementById('btnLock').onclick = async function () {
+  this.disabled = true;
+  const [a, b] = await Promise.all([
+    panggil('uji_lock', { tidur_ms: 2000 }),
+    panggil('uji_lock', { tidur_ms: 2000 })
+  ]);
+  a.aksi = 'uji_lock #1'; b.aksi = 'uji_lock #2';
+  tampilkan(a); tampilkan(b);
+  this.disabled = false;
+};
+
+document.getElementById('btnSemua').onclick = async function () {
+  this.disabled = true;
+  for (const aksi of ['ping', 'tulis_baca', 'buka_kedua', 'buat_file']) await jalankan(aksi);
+  this.disabled = false;
+};
+</script>
+</body>
+</html>
