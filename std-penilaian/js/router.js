@@ -26,9 +26,13 @@ async function muat() {
     const main = document.getElementById('main');
     if (main) main.innerHTML = `<div class="kosong"><p>Gagal memuat halaman: ${String(err)}</p></div>`;
   }
-  // tandai nav aktif
+  // tandai nav aktif — HANYA satu item (yang pertama cocok di urutan DOM),
+  // karena beberapa grup menu (spn/guru/kepsek) dapat menunjuk hash yang sama.
+  let sudahAktif = false;
   document.querySelectorAll('[data-hash]').forEach(a => {
-    a.classList.toggle('aktif', a.dataset.hash === '#' + raw || (path === 'beranda' && a.dataset.hash === '#/beranda'));
+    const match = a.dataset.hash === '#' + raw || (path === 'beranda' && a.dataset.hash === '#/beranda');
+    if (match && !sudahAktif) { a.classList.add('aktif'); sudahAktif = true; }
+    else { a.classList.remove('aktif'); }
   });
   // tutup drawer di layar kecil
   document.querySelector('.sidebar')?.classList.remove('show');
